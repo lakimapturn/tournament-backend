@@ -1,0 +1,102 @@
+{% extends "Tournament/layout.html" %} {% block body %}
+
+<div
+  class="container-sm mt-4 p-4 text-center"
+  style="width: 55%; background-color: #24305e !important"
+>
+  <div class="card">
+    <div class="card-header bg-transparent">
+      <!-- prettier-ignore -->
+      <h1 class="display-">Tournament Details: {{object.name}}</h1>
+    </div>
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col-3">Sport</div>
+        <div class="col">{{object.sport}}</div>
+      </div>
+      <br />
+      <div class="row align-items-center">
+        <div class="col-3">Categories</div>
+        <div class="col">
+          <ul class="list-group">
+            {% for category in object.categories.all %}
+            <li class="list-group-item">{{category}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <br />
+      <div class="row align-items-center">
+        <div class="col-3">Schools</div>
+        <div class="col">
+          <ul
+            class="list-group"
+            style="display: grid; grid-template-columns: auto auto"
+          >
+            {% for school in object.schools.all %}
+            <li class="list-group-item" style="border-top-width: 1px">
+              {{school}}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <br />
+      <div class="row align-items-center">
+        <div class="col-3">Events</div>
+        <div class="col">
+          <ul class="list-group">
+            {% for event in object.event_types.all %}
+            <li class="list-group-item">{{event}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <br />
+      <div class="row align-items-center">
+        <div class="col-3">Start Date</div>
+        <div class="col">{{object.start_date}}</div>
+      </div>
+      <br />
+      <div class="row align-items-center">
+        <div class="col-3">End Date</div>
+        <div class="col">{{object.end_date}}</div>
+      </div>
+      <br />
+      <div class="row align-items-center">
+        <div class="col-3">Winner</div>
+        <div class="col">{{object.winner}}</div>
+      </div>
+      <br />
+      <div class="row align-items-center">
+        <div class="col-3">Status</div>
+        <div class="col">{{object.status}}</div>
+      </div>
+      <br />
+      <div class="row align-items-center">
+        <div class="col-3">Points Per Win</div>
+        <div class="col">{{object.points_per_win}}</div>
+      </div>
+      <br />
+    </div>
+    <div class="card-footer">
+      {% if object.status == 'Not Started' %}
+      <a
+        role="button"
+        href="{% url 'start_tournament' object.id %}"
+        class="btn btn-primary"
+        >Start Tournament</a
+      >
+      {% else %}
+      <a
+        role="button"
+        href="{% url 'end_tournament' object.id %}"
+        class="btn btn-danger"
+        >End Tournament</a
+      >
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

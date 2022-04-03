@@ -1,0 +1,28 @@
+<thead>
+  <!-- prettier-ignore -->
+  <tr>
+    <th scope="col">#</th>
+    <th>First Name</th>
+    <th>Last Name</th>
+    <th>Team</th>
+    <th></th>
+  </tr>
+</thead>
+<tbody class="align-middle">
+  {% for object in object_list %}
+  <tr>
+    <td>{{forloop.counter}}</td>
+    <td>{{object.first_name}}</td>
+    <td>{{object.last_name}}</td>
+    <td>{% for i in object.team.all %} {{i}} {% endfor %}</td>
+    <td>
+      <a
+        type="button"
+        class="btn btn-primary btn-sm"
+        href="{% url 'edit_player' object.id %}"
+        >Edit</a
+      >
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>

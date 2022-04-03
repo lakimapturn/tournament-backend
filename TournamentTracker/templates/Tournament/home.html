@@ -1,0 +1,109 @@
+{% extends "Tournament/layout.html" %} {% block body %} {% load list_tags %}
+
+<div class="container-sm mt-5 text-center">
+  <div class="row justify-content-end">
+    <div class="col-md-4">
+      <form method="POST" action="{% url 'search' %}" class="input-group mb-3">
+        {% csrf_token %}
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search For A Tournament🔍"
+          aria-label="search"
+          aria-describedby="search-button"
+          required
+          minlength="2"
+          name="search_query"
+          autocomplete="off"
+        />
+        <button
+          class="btn btn-outline-secondary"
+          type="submit"
+          id="search-button"
+        >
+          Search
+        </button>
+      </form>
+    </div>
+  </div>
+  <div class="card-header">
+    <h1 class="display-5">Home</h1>
+  </div>
+  <!-- <h4>Overview of the tournaments...</h4> -->
+  {% for tournament in tournaments %}
+  <div class="card m-3">
+    <h4 class="card-title display-6">{{tournament.name}}</h4>
+
+    <div class="row g-0">
+      <div class="col-md-4" style="margin: auto">
+        <img
+          src="https://media.yogems.com/fd251cb0-980f-11e9-b175-45eb217179ee.jpg"
+          class="img-fluid rounded-start"
+          alt="..."
+        />
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <div class="container">
+            <div class="row row-cols-2">
+              <div class="col my-3">
+                <div class="card">
+                  <div class="card-header"><h5 class="m-auto">Players</h5></div>
+                  <div class="card-body">
+                    {% player_count tournament.id as players %}
+                    <h6 class="display-6">{{players}}</h6>
+                  </div>
+                </div>
+              </div>
+              <div class="col my-3">
+                <div class="card">
+                  <div class="card-header">
+                    <h5 class="m-auto">Teams</h5>
+                  </div>
+
+                  <div class="card-body">
+                    <h6 class="display-6">
+                      {{tournament.tournament_teams.count}}
+                    </h6>
+                  </div>
+                </div>
+              </div>
+              <div class="col my-3">
+                <div class="card">
+                  <div class="card-header"><h5 class="m-auto">Matches</h5></div>
+                  <div class="card-body">
+                    <h6 class="display-6">
+                      {{tournament.tournament_matches.count}}
+                    </h6>
+                  </div>
+                </div>
+              </div>
+              <div class="col my-3">
+                <div class="card">
+                  <div class="card-header">
+                    <h5 class="m-auto">Categories</h5>
+                  </div>
+
+                  <div class="card-body">
+                    <h6 class="display-6">{{tournament.categories.count}}</h6>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="card-text m-3">
+            <a
+              type="button"
+              class="btn btn-primary"
+              href="{% url 'details_tournament' tournament.id %}"
+              >View Details</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

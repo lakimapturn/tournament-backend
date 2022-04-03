@@ -1,0 +1,61 @@
+{% load list_tags %}
+<thead>
+  <tr>
+    {% for key in keys %} {% replaceStr key "_" " " as heading %}
+    <th scope="col">{{heading | capfirst }}</th>
+    {% endfor %}
+    <th>Players</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+</thead>
+<tbody class="align-middle">
+  {% for object in object_list %}
+  <tr>
+    <td>{{forloop.counter}}</td>
+    <td>{{object.tournament}}</td>
+    <td>{{object.category}}</td>
+    <td>{{object.school}}</td>
+    <td>{{object.wins}}</td>
+    <td>{{object.draws}}</td>
+    <td>{{object.losses}}</td>
+    <td>{{object.team_num}}</td>
+    <td>
+      <table class="table mb-0 table-light player-list-table">
+        <tbody>
+          {% for team in object.team.all %}
+          <tr>
+            <td>{{team}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </td>
+    <td>
+      <a
+        type="button"
+        class="btn btn-primary btn-sm"
+        href="{% url 'edit_team' object.id %}"
+        >Edit</a
+      >
+    </td>
+    <td>
+      <a
+        type="button"
+        class="btn btn-primary btn-sm"
+        href="{% url 'add_player' object.id %}"
+        >Add Player</a
+      >
+    </td>
+    <td>
+      <a
+        type="button"
+        class="btn btn-primary btn-sm"
+        href="{% url 'details_player' object.id %}"
+        >View Players</a
+      >
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>

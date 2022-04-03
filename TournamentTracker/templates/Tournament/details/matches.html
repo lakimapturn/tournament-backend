@@ -1,0 +1,77 @@
+<thead>
+  <tr>
+    <th scope="col">#</th>
+    <th>Category</th>
+    <th>Team 1</th>
+    <th>Team 2</th>
+    <th>Winner</th>
+    <th>Score</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+</thead>
+<tbody class="align-middle">
+  {% for object in object_list %}
+  <tr>
+    <td>{{forloop.counter}}</td>
+    <td>{{object.category}}</td>
+    <td>
+      <table class="table mb-0 table-light player-list-table">
+        <tbody>
+          {% for player in object.team1.players.all %}
+          <tr>
+            <td class="player-list">{{player}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </td>
+    <td>
+      <table class="table mb-0 table-light player-list-table">
+        <tbody>
+          {% for player in object.team2.players.all %}
+          <tr>
+            <td class="player-list">{{player}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </td>
+    <td>{{object.winner}}</td>
+    <td>{{object.score}}</td>
+    <td>
+      <a
+        type="button"
+        class="btn btn-primary btn-sm"
+        href="{% url 'edit_match' object.id %}"
+        >Edit</a
+      >
+    </td>
+    <td>
+      {% if object.winner %}
+      <button class="btn btn-primary btn-sm" disabled>Declare Winner</button>
+      {% else %}
+      <a
+        type="button"
+        class="btn btn-primary btn-sm"
+        href="{% url 'declare_match_winner' object.id %}"
+        >Declare Winner</a
+      >
+      {% endif %}
+    </td>
+    <td>
+      {% if object.winner %}
+      <a
+        type="button"
+        class="btn btn-primary btn-sm"
+        href="{% url 'edit_match_winner' object.id %}"
+        >Change Winner</a
+      >
+      {% else %}
+      <button class="btn btn-primary btn-sm" disabled>Change Winner</button>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>

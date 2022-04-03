@@ -1,0 +1,48 @@
+{% extends "Tournament/layout.html" %} {% block body %} {% if message %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  {{ message }}
+  <button
+    type="button"
+    class="btn-close"
+    data-bs-dismiss="alert"
+    aria-label="Close"
+  ></button>
+</div>
+{% endif %}
+<div style="margin: 3rem auto; width: 60%">
+  <div class="card text-center bg-dark mb-3">
+    <div class="card-header">
+      <h1 class="card-title display-6 text-white">Login</h1>
+    </div>
+    <div class="card-body">
+      <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        <div class="form-floating mb-3">
+          <input
+            type="text"
+            class="form-control"
+            id="floatingUsername"
+            placeholder="Username"
+            name="username"
+          />
+          <label for="floatingUsername">Username</label>
+        </div>
+        <div class="form-floating">
+          <input
+            type="password"
+            class="form-control"
+            id="floatingPassword"
+            placeholder="Password"
+            name="password"
+          />
+          <label for="floatingPassword">Password</label>
+        </div>
+        <div style="margin: 1.5rem 0">
+          <input type="submit" title="Login" class="btn btn-outline-light" />
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,91 @@
+{% load list_tags %}
+<thead>
+  <!-- prettier-ignore -->
+  <tr>
+        <th scope="col">#</th>
+        <th>Tournament</th>
+        <th>Sport</th>
+        <th>Winner</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Status</th>
+        <th>Points Per Win</th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+</thead>
+<tbody class="align-middle">
+  {% for object in object_list %}
+  <tr>
+    <td>{{forloop.counter}}</td>
+    <td>{{object.name}}</td>
+    <td>{{object.sport}}</td>
+    <td>{{object.winner}}</td>
+    <td>{{object.start_date}}</td>
+    <td>{{object.end_date}}</td>
+    {% replaceStr object.status "_" " " as status %}
+    <td>{{status}}</td>
+    <td>{{object.points_per_win}}</td>
+    <td>
+      <a
+        type="button"
+        class="btn btn-primary btn-sm"
+        href="{% url 'edit_tournament' object.id %}"
+        >Edit</a
+      >
+    </td>
+    <td>
+      <a
+        type="button"
+        class="btn btn-primary btn-sm"
+        href="{% url 'details_tournament' object.id %}"
+        >View Details</a
+      >
+    </td>
+    <td>
+      {% if object.status == "Not Started" %}
+      <a
+        type="button"
+        class="btn btn-primary btn-sm"
+        href="{% url 'add_school' object.id %}"
+        >Add School</a
+      >
+      {% else %}
+      <button class="btn btn-primary btn-sm" disabled>Add School</button>
+      {% endif %}
+    </td>
+    <td>
+      {% if object.status == "Not Started" %}
+      <a
+        type="button"
+        class="btn btn-primary btn-sm"
+        href="{% url 'add_player' object.id %}"
+        >Add Player</a
+      >
+      {% else %}
+      <button class="btn btn-primary btn-sm" disabled>Add Player</button>
+      {% endif %}
+    </td>
+    <td>
+      <a
+        type="button"
+        class="btn btn-primary btn-sm"
+        href="{% url 'details_team' object.id %}"
+        >View Teams</a
+      >
+    </td>
+    <td>
+      <a
+        type="button"
+        class="btn btn-primary btn-sm"
+        href="{% url 'details_match' object.id %}"
+        >View Matches</a
+      >
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
