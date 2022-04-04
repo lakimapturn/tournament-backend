@@ -26,7 +26,7 @@ SECRET_KEY = 'k#hq62o=-yqsyzm+_z9vh53ice!jf@n(^x-0*rlpn!68tq=m$*'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['localhost', 'gma-tournament-admin.herokuapp.com']
 
 CORS_ORIGIN_ALLOW_ALL = True # change to false when app is deployed
 
