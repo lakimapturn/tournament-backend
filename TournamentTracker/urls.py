@@ -20,7 +20,7 @@ urlpatterns = [
     path('tournament/details/<int:pk>', login_required(views.TournamentDetails.as_view()), name="details_tournament"),
 
     path('school/add', login_required(views.SchoolCreate.as_view()), name="add_school"),
-    path('school/add/<int:tournament_id>', login_required(views.SchoolCreate.as_view()), name="add_school"),
+    path('school/add/<int:tournament_id>', login_required(views.MultiSchoolCreate.as_view()), name="add_school"),
     path('school/edit/<int:pk>', login_required(views.SchoolEdit.as_view()), name="edit_school"),
     # path('school/details', login_required(views.SchoolDetails.as_view()), name="details_school"),
 
@@ -31,7 +31,7 @@ urlpatterns = [
     path('team/details', login_required(views.TeamDetails.as_view()), name="details_team"),
 
     path('player/add', login_required(views.PlayerCreate.as_view()), name="add_player"),
-    path('player/add/<int:tournament_id>', login_required(views.PlayerCreate.as_view()), name="add_player"),
+    path('player/add/<int:tournament_id>', login_required(views.MultiPlayerCreate.as_view()), name="add_player"),
     path('player/<int:pk>', login_required(views.PlayerEdit.as_view()), name="edit_player"),
     path('player/details/<int:team_id>', login_required(views.PlayerDetails.as_view()), name="details_player"),
     path('player/details', login_required(views.PlayerDetails.as_view()), name="details_player"),

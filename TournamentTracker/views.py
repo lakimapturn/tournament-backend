@@ -1,3 +1,5 @@
+from unicodedata import category
+from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
 import math
 from django.shortcuts import render
@@ -12,10 +14,10 @@ from rest_framework import status
 
 from django.views.decorators.csrf import csrf_exempt
 
-from .forms import MatchForm, PlayerForm, SchoolForm, TeamForm, TournamentForm, WinnerForm
+from .forms import MatchForm, MultiPlayerForm, MultiSchoolForm, PlayerForm, SchoolForm, TeamForm, TournamentForm, WinnerForm
 from .models import Category, EventType, Match, Player, School, Team, Tournament
 from .serializers import MatchSerializer, SchoolSerializer, TeamSerializer, TournamentDetailsSerializer, TournamentSerializer
-from .utils import create_teams, get_tournament_winner, on_match_edited, on_match_won, createTournamentFixture
+from .utils import create_teams, get_tournament_winner, on_match_edited, on_match_won, createTournamentFixture, saveMultiPlayerFormDetails
 
 # Create your views here.
 
@@ -120,7 +122,7 @@ class TournamentEdit(generic.UpdateView):
     model = Tournament
     form_class = TournamentForm
     template_name = 'Tournament/form.html'
-    # success_url = reverse_lazy("index")
+    success_url = reverse_lazy("details_tournament")
     extra_context = {'title': 'Edit Tournament', 'cancel_url': 'details_tournament'}
 
     def get_context_data(self, **kwargs):
@@ -174,7 +176,7 @@ class SchoolEdit(generic.UpdateView):
     model = School
     form_class = SchoolForm
     template_name = 'Tournament/form.html'
-    # success_url = reverse_lazy("index")
+    success_url = reverse_lazy("details_tournament")
     extra_context = {'title': 'Edit School'}
 
 class SchoolCreate(generic.CreateView):
@@ -204,6 +206,29 @@ class SchoolCreate(generic.CreateView):
             self.extra_context["success_url_parameter"] = '' + str(tournament.id)
         return context
 
+class MultiSchoolCreate(generic.CreateView):
+    model = School
+    form_class = MultiSchoolForm
+    template_name = 'Tournament/form.html'
+    success_url = reverse_lazy("details_tournament")
+    extra_context = {'title': 'Create School', 'success_url': 'add_player'}
+
+    def post(self, request, *args, **kwargs) -> HttpResponse:
+        form = MultiSchoolForm(request.POST)
+        tournament = Tournament.objects.get(id = self.kwargs["tournament_id"])
+        if form.is_valid():
+            schools = form.cleaned_data["schools"].split("\n")
+            
+            for school_name in schools:
+                school_name = school_name.trim()
+                if School.objects.filter(name = school_name):
+                    logo = School.objects.filter(name = school_name)[0].logo
+                school = School.objects.create(name = school_name, logo = logo)
+                tournament.schools.add(school)
+            tournament.save()
+            
+        return HttpResponseRedirect(reverse_lazy("add_school", kwargs = {'tournament_id': tournament.id}))
+
 # class SchoolDetails(generic.ListView):
 #     model = School
 #     template_name = 'Tournament/details.html'
@@ -220,7 +245,7 @@ class TeamEdit(generic.UpdateView):
     model = Team
     form_class = TeamForm
     template_name = 'Tournament/form.html'
-    # success_url = reverse_lazy("index")
+    success_url = reverse_lazy("details_team")
     extra_context = {'title': 'Edit Team', 'cancel_url': 'details_team'}
 
 class TeamCreate(generic.CreateView):
@@ -247,7 +272,6 @@ class TeamDetails(generic.ListView):
     template_name = 'Tournament/details.html'
     paginate_by = 20
     extra_context = {
-        # 'keys': getKeys(Team.objects.first()),
         'inner_template': "Tournament/details/teams.html",
         'title': 'Team',
         'add_url': 'add_team',
@@ -270,8 +294,8 @@ class MatchEdit(generic.UpdateView):
     model = Match
     form_class = MatchForm
     template_name = 'Tournament/form.html'
-    success_url = reverse_lazy("index")
-    extra_context = {'title': 'Edit Match', 'cancel_url': 'details_match'}
+    success_url = reverse_lazy("details_tournament")
+    extra_context = {'title': 'Edit Match'}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -291,10 +315,9 @@ class EditMatchWinner(generic.UpdateView):
     model = Match
     form_class = WinnerForm
     template_name = 'Tournament/form.html'
-    success_url = reverse_lazy("index")
+    success_url = reverse_lazy("details_tournament")
     extra_context = {
         'title': 'Edit Match Winner', 
-        'cancel_url': 'details_match'
     }
 
     def get_context_data(self, **kwargs):
@@ -322,7 +345,7 @@ class DeclareMatchWinner(generic.UpdateView):
     model = Match
     form_class = WinnerForm
     template_name = 'Tournament/form.html'
-    success_url = reverse_lazy("add_another")
+    success_url = reverse_lazy("details_team")
     extra_context = {
         'title': 'Declare Match Winner', 
     }
@@ -355,7 +378,6 @@ class MatchDetails(generic.ListView):
     template_name = 'Tournament/details.html'
     paginate_by = 20
     extra_context = {
-        # 'keys': getKeys(Match.objects.first()),
         'inner_template': "Tournament/details/matches.html",
         'title': 'Match',
     }
@@ -375,30 +397,48 @@ class PlayerEdit(generic.UpdateView):
     extra_context = {'title': 'Edit Player', 'cancel_url': 'details_player'}
 
 class PlayerCreate(generic.CreateView):
-    form_class = PlayerForm
+    form_class = MultiPlayerForm
+    template_name = 'Tournament/form.html'
+    success_url = reverse_lazy("details_tournament")
+    extra_context = {'title': 'Create Player', 'cancel_url': 'details_player'}   
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = context["form"]
+        form.fields["tournament"].queryset = Tournament.objects.filter(~Q(status = "Not Started"))
+        if self.kwargs:
+            tournament = Team.objects.get(id = self.kwargs["team_id"])
+            form.fields["tournament"].initial = tournament
+
+        return context
+
+class MultiPlayerCreate(generic.CreateView):
+    form_class = MultiPlayerForm
     template_name = 'Tournament/form.html'
     success_url = reverse_lazy("details_tournament")
     extra_context = {'title': 'Create Player', 'cancel_url': 'details_player'}
 
     def post(self, request, *args, **kwargs) -> HttpResponse:
-        form = PlayerForm(request.POST)
+        form = MultiPlayerForm(request.POST)
         
         if form.is_valid():
-            player = form.save()
-            player.save()
+            tournament = Tournament.objects.get(id = form.cleaned_data['tournament'].id)
+            category = Category.objects.get(id = form.cleaned_data['category'].id)
+            data = form.cleaned_data['players']
+            players = data.split("\n")
+            saveMultiPlayerFormDetails(players, tournament, category)
+
             if self.kwargs:
                 return HttpResponseRedirect(reverse_lazy("add_player", kwargs = {'tournament_id': self.kwargs["tournament_id"]}))
-            return HttpResponseRedirect(reverse_lazy("add_player"))
-            
+            return HttpResponseRedirect(reverse_lazy("add_player"))    
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form = context["form"]
+        form.fields["tournament"].queryset = Tournament.objects.filter(~Q(status = "Not Started"))
         if self.kwargs:
             tournament = Tournament.objects.get(id = self.kwargs["tournament_id"])
-            context["form"].fields["tournament"].initial = tournament
-            form.fields["school"].queryset = tournament.schools
-            # context["form"].fields["tournament"].disabled = True
+            form.fields["tournament"].initial = tournament
 
         return context
 
@@ -433,9 +473,7 @@ class Home(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.kwargs != {}:
-            for tournament in Tournament.objects.all():
-                if self.kwargs['search_query'] in tournament.name:
-                    self.extra_context["tournaments"] += tournament
+            self.extra_context["tournaments"] = Tournament.objects.filter(name__startswith = self.kwargs['search_query'])
         return context
 
 def search(request):

@@ -173,6 +173,20 @@ def get_tournament_winner(tournament):
     winner = tournament.schools.all().order_by('-points')[0] # stores the school with the most points
     return winner
 
+def saveMultiPlayerFormDetails(players, tournament, category):
+    for player in players:
+        playerData = player.split(",")
+        school = tournament.schools.all().get(name = playerData[2].strip())
+        tempPlayer = TempPlayer.objects.create(
+            school = school, 
+            tournament = tournament, 
+            category = category, 
+            first_name = playerData[0],
+            last_name = playerData[1],
+            team_num = playerData[3]
+        )
+        tempPlayer.save()
+
 
 def createFixture(teams):
     matchArray = []

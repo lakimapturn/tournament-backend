@@ -2,7 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from django import forms
 
-from .models import Match, Player, School, Sport, Team, TempPlayer, Tournament
+from .models import Match, Player, School, Team, TempPlayer, Tournament
 
 class SchoolForm(ModelForm):
     class Meta:
@@ -16,6 +16,22 @@ class SchoolForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SchoolForm, self).__init__(*args, **kwargs)
+
+class MultiSchoolForm(ModelForm):
+    schools = forms.CharField(
+        widget = forms.Textarea(attrs={'class': 'form-control'}),
+        help_text = '<i>Add every school on a new line</i>'
+    )
+    class Meta:
+        model = School
+        fields = ('schools',)
+        # widgets = {
+        #     'logo': forms.FileInput(attrs={'class': 'form-control'}),
+        #     'points': forms.NumberInput(attrs={'class': 'form-control'}),
+        # }
+
+    def __init__(self, *args, **kwargs):
+        super(MultiSchoolForm, self).__init__(*args, **kwargs)
 
 class TournamentForm(ModelForm):
     class Meta:
@@ -55,14 +71,13 @@ class TeamForm(ModelForm):
         super(TeamForm, self).__init__(*args, **kwargs)
 
 
-class PlayerForm(ModelForm):
+class TempPlayerForm(ModelForm):
     class Meta:
         model = TempPlayer
         fields = '__all__'
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'team_num': forms.NumberInput(attrs={'class': 'form-control'}),
             'tournament': forms.Select(attrs={'class': 'form-select'}),
             'category': forms.Select(attrs={'class': 'form-select'}),
             'school': forms.Select(attrs={'class': 'form-select'}),
@@ -73,9 +88,38 @@ class PlayerForm(ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(PlayerForm, self).__init__(*args, **kwargs)
+        super(TempPlayerForm, self).__init__(*args, **kwargs)
         self.fields['team_num'].initial = 1
 
+class PlayerForm(ModelForm):
+    class Meta:
+        model = Player
+        fields = '__all__'
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class MultiPlayerForm(ModelForm):
+    players = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control', 
+            'placeholder': 'First_name, Last_name, School, Team_number'
+        }),
+        help_text=
+        '<i>Add every player on a new line</i><br /><i>Follow this format: First_name, Last_name, School Team_number</i><br /><i>Ensure that the school name entered corresponds to the name entered previously</i>',
+    )
+
+    class Meta:
+        model = TempPlayer
+        fields = ('tournament', 'category', 'players')
+        widgets = {
+            'tournament': forms.Select(attrs={'class': 'form-select'}),
+            'category': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(MultiPlayerForm, self).__init__(*args, **kwargs)
 
 class MatchForm(ModelForm):
     class Meta:
