@@ -4,9 +4,9 @@ from django.contrib.auth.decorators import login_required
 from . import views
 
 urlpatterns = [
-    path('', views.Home.as_view(), name='index'),
-    path('search', views.search, name='search'),
-    path('search/<str:search_query>', views.Home.as_view(), name='index'),
+    path('', login_required(views.Home.as_view()), name='index'),
+    path('search', login_required(views.search), name='search'),
+    path('search/<str:search_query>', login_required(views.Home.as_view()), name='index'),
     
     path('tournament-list', views.TournamentListAPI.as_view()),
     path('tournament-details', views.TournamentDetailsAPI.as_view()),
