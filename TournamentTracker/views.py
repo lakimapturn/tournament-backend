@@ -85,7 +85,7 @@ class MatchAPI(APIView):
             queryset = Match.objects.filter(tournament = tournament, category = category)
             serializer = MatchSerializer(queryset, many=True)
 
-            createTournamentFixture(Team.objects.filter(tournament = Tournament.objects.get(id = 2)))
+            # createTournamentFixture(Team.objects.filter(tournament = Tournament.objects.get(id = 2)))
             return Response({'matches': serializer.data, 'initial-matches': math.ceil(teams.count()/2)}, status=status.HTTP_200_OK)
         except:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
