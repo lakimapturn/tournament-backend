@@ -4,6 +4,10 @@ from django import forms
 
 from .models import Match, Player, School, Team, TempPlayer, Tournament
 
+class DateInput(forms.DateInput):
+    input_type = 'date'
+    attrs={'class': 'form-control'}
+
 class SchoolForm(ModelForm):
     class Meta:
         model = School
@@ -41,8 +45,8 @@ class TournamentForm(ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'sport': forms.Select(attrs={'class': 'form-control'}),
             'winner': forms.Select(attrs={'class': 'form-control'}),
-            'start_date': forms.DateInput(),
-            'end_date': forms.DateInput(),
+            'start_date': DateInput(),
+            'end_date': DateInput(),
             'categories': forms.SelectMultiple(attrs={'class': 'form-select'}),
             'event_types': forms.SelectMultiple(attrs={'class': 'form-select'}),
             'points_per_win': forms.NumberInput(attrs={'class': 'form-control'}),

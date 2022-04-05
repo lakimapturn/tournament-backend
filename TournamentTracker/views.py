@@ -130,9 +130,8 @@ class TournamentEdit(generic.UpdateView):
 
         tournament = Tournament.objects.get(id = self.kwargs["pk"])
         form = context["form"]
-        form.fields['categories'].queryset = tournament.categories
+        # form.fields['categories'].queryset = tournament.categories
         form.fields['event_types'].queryset = tournament.event_types
-        form.fields['schools'].queryset = tournament.schools
         form.fields['winner'].queryset = tournament.schools
         # ask sir if he would prefer having all options open when editing or narrowing the options down
 
