@@ -64,6 +64,7 @@ class Tournament(models.Model):
     schools = models.ManyToManyField(School, related_name="tournaments", blank = True)
     status = models.CharField(max_length=16, choices=STATUS, default='Not Started', null=True, blank=True)
     points_per_win = models.PositiveSmallIntegerField(default=1, null=True, blank=True)
+    image = models.ImageField(null=True, blank=True, default="")
 
     def __str__(self):
         return self.name
