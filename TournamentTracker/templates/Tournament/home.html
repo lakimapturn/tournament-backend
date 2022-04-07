@@ -36,8 +36,14 @@
 
     <div class="row g-0">
       <div class="col-md-4" style="margin: auto">
+        <!-- prettier-ignore -->
         <img
-          src="https://media.yogems.com/fd251cb0-980f-11e9-b175-45eb217179ee.jpg"
+          src=
+          {% if tournament.image %}
+              "https://gma-tournament-admin.herokuapp.com/media/{{tournament.image}}"
+            {% else %} 
+              "https://media.yogems.com/fd251cb0-980f-11e9-b175-45eb217179ee.jpg"
+            {% endif %}
           class="img-fluid rounded-start"
           alt="..."
         />

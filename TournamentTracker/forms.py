@@ -40,13 +40,14 @@ class MultiSchoolForm(ModelForm):
 class TournamentForm(ModelForm):
     class Meta:
         model = Tournament
-        fields = ('name', 'sport', 'winner', 'start_date', 'end_date', 'categories', 'event_types', 'points_per_win')
+        fields = ('name', 'sport', 'winner', 'start_date', 'end_date', 'categories', 'event_types', 'points_per_win', 'image')
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'sport': forms.Select(attrs={'class': 'form-control'}),
             'winner': forms.Select(attrs={'class': 'form-control'}),
             'start_date': DateInput(),
             'end_date': DateInput(),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
             'categories': forms.SelectMultiple(attrs={'class': 'form-select'}),
             'event_types': forms.SelectMultiple(attrs={'class': 'form-select'}),
             'points_per_win': forms.NumberInput(attrs={'class': 'form-control'}),

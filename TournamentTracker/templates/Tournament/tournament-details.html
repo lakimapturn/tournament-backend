@@ -1,5 +1,4 @@
-{% extends "Tournament/layout.html" %} {% block body %}
-
+{% extends "Tournament/layout.html" %} {% block body %} {% load static %}
 <div
   class="container-sm mt-4 p-4 text-center"
   style="width: 55%; background-color: #24305e !important"
@@ -102,6 +101,19 @@
       <div class="row align-items-center">
         <div class="col-3">Points Per Win</div>
         <div class="col">{{object.points_per_win}}</div>
+      </div>
+      <br />
+      <div class="row align-items-center">
+        <div class="col-3">Image</div>
+        <div class="col">
+          <!-- prettier-ignore -->
+          <img src={% if tournament.image %}
+            "https://gma-tournament-admin.herokuapp.com/media/{{tournament.image}}"
+            {% else %} 
+            "https://media.yogems.com/fd251cb0-980f-11e9-b175-45eb217179ee.jpg"
+            {% endif %} 
+          alt="Tournament Image" width="400" />
+        </div>
       </div>
       <br />
     </div>
