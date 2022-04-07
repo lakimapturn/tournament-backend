@@ -6,7 +6,7 @@ class TournamentSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Tournament
         fields = (
-            'id', 'name', 'sport', 'start_date', 'end_date', 'event_types', 'status'
+            'id', 'name', 'sport', 'start_date', 'end_date', 'event_types', 'status', 'image'
         )
 
         depth = 1
