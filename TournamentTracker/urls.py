@@ -1,5 +1,7 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from django.conf.urls.static import static 
 
 from . import views
 
@@ -48,3 +50,5 @@ urlpatterns = [
     path('end-tournament/<int:tournament_id>', views.end_tournament, name="end_tournament"),
     path('add-another', views.returnToSamePage, name="add_another"),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
