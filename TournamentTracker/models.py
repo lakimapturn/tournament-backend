@@ -107,10 +107,10 @@ class TempPlayer(models.Model):
 class Match(models.Model):
     contestants = (('Team1', 'Team1'), ('Team2', 'Team2'))
 
-    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, blank=False, default="", related_name="tournament_matches")
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=False, blank=False, default="", related_name="category_matches")
-    team1 = models.ForeignKey(Team, on_delete=models.CASCADE, default="", blank = True, null=True, related_name="team1_match")
-    team2 = models.ForeignKey(Team, on_delete=models.CASCADE, default="", blank = True, null=True, related_name="team2_match")
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, blank=False, related_name="tournament_matches")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=False, blank=False, related_name="category_matches")
+    team1 = models.ForeignKey(Team, on_delete=models.CASCADE, blank = True, null=True, related_name="team1_match")
+    team2 = models.ForeignKey(Team, on_delete=models.CASCADE, blank = True, null=True, related_name="team2_match")
     winner = models.ForeignKey(Team, on_delete=models.CASCADE, default="", blank = True, null=True,related_name="match_winner")
     score = models.CharField(max_length=32, default="", null=True, blank=True)
     match_number = models.PositiveSmallIntegerField(null=False, blank=False, default=1)

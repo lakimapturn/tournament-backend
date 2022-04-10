@@ -31,8 +31,8 @@ def createTournamentFixture(teams):
             matchNum = matchNum + 1
         
         try:
-            match = Match.objects.get(category = category, tournament = tournament, match_number = matchNum)
-            if match.team1 != matchList[-1].winner:
+            match = Match.objects.get_or_create(category = category, tournament = tournament, match_number = matchNum, team2 = teams.last())
+            if matchList[-1].winner and match.team1 != matchList[-1].winner:
                 match.team1 = matchList[-1].winner
                 match.save()
         except:

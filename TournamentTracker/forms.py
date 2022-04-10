@@ -56,7 +56,6 @@ class TournamentForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(TournamentForm, self).__init__(*args, **kwargs)
 
-
 class TeamForm(ModelForm):
     class Meta:
         model = Team
@@ -71,6 +70,7 @@ class TeamForm(ModelForm):
             'players': forms.SelectMultiple(attrs={'class': 'form-select'}),
             'team_num': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+        
 
     def __init__(self, *args, **kwargs):
         super(TeamForm, self).__init__(*args, **kwargs)

@@ -219,14 +219,14 @@ class MultiSchoolCreate(generic.CreateView):
             schools = form.cleaned_data["schools"].split("\n")
             
             for school_name in schools:
-                school_name = school_name.trim()
+                school_name = school_name.strip()
                 if School.objects.filter(name = school_name):
                     logo = School.objects.filter(name = school_name)[0].logo
                 school = School.objects.create(name = school_name, logo = logo)
                 tournament.schools.add(school)
             tournament.save()
             
-        return HttpResponseRedirect(reverse_lazy("add_school", kwargs = {'tournament_id': tournament.id}))
+        return HttpResponseRedirect(reverse_lazy("add_player", kwargs = {'tournament_id': tournament.id}))
 
 # class SchoolDetails(generic.ListView):
 #     model = School
@@ -396,7 +396,7 @@ class PlayerEdit(generic.UpdateView):
     extra_context = {'title': 'Edit Player', 'cancel_url': 'details_player'}
 
 class PlayerCreate(generic.CreateView):
-    form_class = MultiPlayerForm
+    form_class = PlayerForm
     template_name = 'Tournament/form.html'
     success_url = reverse_lazy("details_tournament")
     extra_context = {'title': 'Create Player', 'cancel_url': 'details_player'}   
@@ -428,13 +428,12 @@ class MultiPlayerCreate(generic.CreateView):
             saveMultiPlayerFormDetails(players, tournament, category)
 
             if self.kwargs:
-                return HttpResponseRedirect(reverse_lazy("add_player", kwargs = {'tournament_id': self.kwargs["tournament_id"]}))
+                return HttpResponseRedirect(reverse_lazy("details_tournament", kwargs = {'pk': self.kwargs["tournament_id"]}))
             return HttpResponseRedirect(reverse_lazy("add_player"))    
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form = context["form"]
-        form.fields["tournament"].queryset = Tournament.objects.filter(~Q(status = "Not Started"))
         if self.kwargs:
             tournament = Tournament.objects.get(id = self.kwargs["tournament_id"])
             form.fields["tournament"].initial = tournament
