@@ -23,13 +23,22 @@ class Sport(models.Model):
 class School(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False, default="")
     logo = models.ImageField(null=True, blank=True, default="")
-    points = models.PositiveIntegerField(null=False, blank=False, default=0)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        	ordering = ('name', 'points')
+        	ordering = ('name', )
+
+class SchoolPoints(models.Model):
+    school = models.ForeignKey(School, on_delete = models.CASCADE, blank = False, null=False)
+    points = models.PositiveIntegerField(null=False, blank=False, default=0)
+
+    def __str__(self):
+        return self.school.name
+
+    class Meta:
+        	ordering = ('points', )
 
 class EventType(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False, default="")
@@ -61,7 +70,7 @@ class Tournament(models.Model):
     end_date = models.DateField(null=False, blank=False)
     categories = models.ManyToManyField(Category, related_name="category_tournaments", blank=False)
     event_types = models.ManyToManyField(EventType, related_name="event_tournaments", blank = False)
-    schools = models.ManyToManyField(School, related_name="tournaments", blank = True)
+    schools = models.ManyToManyField(SchoolPoints, related_name="tournaments", blank = True)
     status = models.CharField(max_length=16, choices=STATUS, default='Not Started', null=True, blank=True)
     points_per_win = models.PositiveSmallIntegerField(default=1, null=True, blank=True)
     image = models.ImageField(null=True, blank=True, default="")

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Category, Match, Player, School, Team, Tournament
+from .models import Category, Match, Player, School, SchoolPoints, Team, Tournament
 
 class TournamentSerializer(serializers.ModelSerializer):
     class Meta: 
@@ -24,9 +24,17 @@ class SchoolSerializer(serializers.ModelSerializer):
     class Meta: 
         model = School
         fields = (
-            'id', 'name', 'points', 'logo'
+            'id', 'name', 'logo'
         )
 
+class SchoolPointsSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = SchoolPoints
+        fields = (
+            'id', 'school', 'points'
+        )
+        
+        depth = 1
 
 class TournamentDetailsSerializer(serializers.ModelSerializer):
     schools = serializers.SerializerMethodField()
@@ -37,9 +45,8 @@ class TournamentDetailsSerializer(serializers.ModelSerializer):
         depth = 1
 
     def get_schools(self, instance):
-        print(instance)
         schools = instance.schools.all().order_by('-points')
-        return SchoolSerializer(schools, many=True).data
+        return SchoolPointsSerializer(schools, many=True).data
 
 
 class TeamSerializer(serializers.ModelSerializer):

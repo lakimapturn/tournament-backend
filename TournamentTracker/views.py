@@ -15,7 +15,7 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 
 from .forms import MatchForm, MultiPlayerForm, MultiSchoolForm, PlayerForm, SchoolForm, TeamForm, TournamentForm, WinnerForm
-from .models import Category, EventType, Match, Player, School, Team, Tournament
+from .models import Category, EventType, Match, Player, School, SchoolPoints, Team, Tournament
 from .serializers import MatchSerializer, SchoolSerializer, TeamSerializer, TournamentDetailsSerializer, TournamentSerializer
 from .utils import create_teams, get_tournament_winner, on_match_edited, on_match_won, createTournamentFixture, saveMultiPlayerFormDetails
 
@@ -185,25 +185,6 @@ class SchoolCreate(generic.CreateView):
     success_url = reverse_lazy("details_tournament")
     extra_context = {'title': 'Create School', 'success_url': 'add_player'}
 
-    def post(self, request, *args, **kwargs) -> HttpResponse:
-        form = SchoolForm(request.POST)
-        
-        if form.is_valid():
-            school = form.save()
-            school.save()
-            if self.kwargs:
-                tournament = Tournament.objects.get(id = self.kwargs["tournament_id"])
-                tournament.schools.add(school)
-                tournament.save()
-        return HttpResponseRedirect(reverse_lazy("add_school", kwargs = {'tournament_id': tournament.id}))
-
-    def get_context_data(self, **kwargs) :
-        context = super().get_context_data(**kwargs)
-        form = context["form"]
-        if self.kwargs != {}:
-            tournament = Tournament.objects.get(id = self.kwargs['tournament_id'])
-            self.extra_context["success_url_parameter"] = '' + str(tournament.id)
-        return context
 
 class MultiSchoolCreate(generic.CreateView):
     model = School
@@ -220,10 +201,9 @@ class MultiSchoolCreate(generic.CreateView):
             
             for school_name in schools:
                 school_name = school_name.strip()
-                if School.objects.filter(name = school_name):
-                    logo = School.objects.filter(name = school_name)[0].logo
-                school = School.objects.create(name = school_name, logo = logo)
-                tournament.schools.add(school)
+                school = School.objects.get(name = school_name)
+                schoolPoints = SchoolPoints.objects.create(school = school)
+                tournament.schools.add(schoolPoints)
             tournament.save()
             
         return HttpResponseRedirect(reverse_lazy("add_player", kwargs = {'tournament_id': tournament.id}))

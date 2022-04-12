@@ -1,5 +1,5 @@
 import math
-from .models import Player, TempPlayer, Tournament, School, Team, Match
+from .models import Player, SchoolPoints, TempPlayer, Tournament, School, Team, Match
 
 def createTournamentFixture(teams):
     rows = math.ceil(len(teams)/2)
@@ -111,7 +111,7 @@ def on_match_won(winner, loser, score):
     winner.wins = winner.wins + 1
     winner.save()
 
-    winnerSchool = School.objects.get(id = winner.school.id)
+    winnerSchool = SchoolPoints.objects.get(id = winner.school.id)
     winnerSchool.points = winnerSchool.points + tournament.points_per_win
     # winnerSchool.wins = winnerSchool.wins + 1
     winnerSchool.save()
@@ -129,10 +129,12 @@ def on_match_won(winner, loser, score):
 def on_match_edited(winner, loser, score):
     tournament = Tournament.objects.get(id = winner.tournament.id)
     # adding and subtracting 2 to make up for the error victory and loss
-    loser.wins = loser.wins - 2
+    loser.wins = max(loser.wins - 1, 0)
+    loser.losses = loser.losses + 1
     loser.save()
 
-    winner.wins = winner.wins + 2
+    winner.wins = winner.wins + 1
+    winner.losses = max(loser.wins - 1, 0)
     winner.save()
 
     createTournamentFixture(Team.objects.filter(tournament = tournament, category = winner.category))
@@ -171,12 +173,12 @@ def create_teams(tournament, category):
 
 def get_tournament_winner(tournament):
     winner = tournament.schools.all().order_by('-points')[0] # stores the school with the most points
-    return winner
+    return winner.school
 
 def saveMultiPlayerFormDetails(players, tournament, category):
     for player in players:
         playerData = player.split(",")
-        school = tournament.schools.all().get(name = playerData[2].strip())
+        school = School.objects.get(name = playerData[2].strip())
         tempPlayer = TempPlayer.objects.create(
             school = school, 
             tournament = tournament, 
