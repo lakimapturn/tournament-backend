@@ -55,12 +55,6 @@
                 >Home</a
               >
             </li>
-            <!-- <li>
-              <a
-                class="nav-link px-2 text-white"
-                >Schools</a
-              >
-            </li> -->
             <li>
               <a
                 href="{% url 'details_tournament' %}"
@@ -70,16 +64,9 @@
             </li>
             <li>
               <a
-                href="{% url 'details_team' %}"
+                href="{% url 'details_school' %}"
                 class="nav-link px-2 text-white"
-                >Teams</a
-              >
-            </li>
-            <li class="nav-item">
-              <a
-                href="{% url 'details_player' %}"
-                class="nav-link px-2 text-white"
-                >Players</a
+                >Schools</a
               >
             </li>
             <li class="nav-item dropdown">
@@ -99,17 +86,17 @@
                     >Tournament</a
                   >
                 </li>
+                <li><hr class="dropdown-divider" /></li>
                 <li>
                   <a class="dropdown-item" href="{% url 'add_school' %}"
                     >School</a
                   >
                 </li>
-                <!-- <li><hr class="dropdown-divider" /></li> -->
-                <li>
+                <!-- <li>
                   <a class="dropdown-item" href="{% url 'add_player' %}"
                     >Player</a
                   >
-                </li>
+                </li> -->
               </ul>
             </li>
           </ul>
@@ -123,6 +110,9 @@
             />
           </form> -->
           <div class="text-end">
+            {% if request.user.is_superuser %}
+            <a type="button" href="/admin" class="btn btn-dark me-2">Admin</a>
+            {% endif %}
             <a
               type="button"
               class="btn btn-outline-light me-2"

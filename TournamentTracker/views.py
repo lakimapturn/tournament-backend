@@ -185,7 +185,6 @@ class SchoolCreate(generic.CreateView):
     success_url = reverse_lazy("details_tournament")
     extra_context = {'title': 'Create School', 'success_url': 'add_player'}
 
-
 class MultiSchoolCreate(generic.CreateView):
     model = School
     form_class = MultiSchoolForm
@@ -208,16 +207,15 @@ class MultiSchoolCreate(generic.CreateView):
             
         return HttpResponseRedirect(reverse_lazy("add_player", kwargs = {'tournament_id': tournament.id}))
 
-# class SchoolDetails(generic.ListView):
-#     model = School
-#     template_name = 'Tournament/details.html'
-#     paginate_by = 20
-#     extra_context = {
-#         # 'keys': getKeys(School.objects.first()),
-#         'inner_template': "Tournament/details/schools.html",
-#         'title': 'School',
-#         'add_url': 'add_school',
-#     }
+class SchoolDetails(generic.ListView):
+    model = School
+    template_name = 'Tournament/details.html'
+    paginate_by = 20
+    extra_context = {
+        'inner_template': "Tournament/details/schools.html",
+        'title': 'School',
+        'add_url': 'add_school',
+    }
 
 
 class TeamEdit(generic.UpdateView):

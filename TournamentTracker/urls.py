@@ -24,7 +24,7 @@ urlpatterns = [
     path('school/add', login_required(views.SchoolCreate.as_view()), name="add_school"),
     path('school/add/<int:tournament_id>', login_required(views.MultiSchoolCreate.as_view()), name="add_school"),
     path('school/edit/<int:pk>', login_required(views.SchoolEdit.as_view()), name="edit_school"),
-    # path('school/details', login_required(views.SchoolDetails.as_view()), name="details_school"),
+    path('school/details', login_required(views.SchoolDetails.as_view()), name="details_school"),
 
     path('team/add/<int:tournament_id>', login_required(views.TeamCreate.as_view()), name="add_team"),
     path('team/add', login_required(views.TeamCreate.as_view()), name="add_team"),

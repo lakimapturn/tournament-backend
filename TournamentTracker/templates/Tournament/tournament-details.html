@@ -7,6 +7,32 @@
     <div class="card-header bg-transparent">
       <!-- prettier-ignore -->
       <h1 class="display-">Tournament Details: <br /> {{object.name}}</h1>
+      <div class="row align-items-center">
+        <div class="btn-group" role="group" aria-label="Basic outlined example">
+          <a
+            href="{% url 'add_player' object.id %}"
+            type="button"
+            class="btn btn-outline-secondary"
+          >
+            Add Player
+          </a>
+          <a
+            href="{% url 'details_team' object.id %}"
+            type="button"
+            class="btn btn-outline-secondary"
+          >
+            View Teams
+          </a>
+          <a
+            href="{% url 'details_match' object.id %}"
+            type="button"
+            class="btn btn-outline-secondary"
+          >
+            View Matches
+          </a>
+        </div>
+      </div>
+      <br />
     </div>
     <div class="card-body">
       <div class="row align-items-center">
