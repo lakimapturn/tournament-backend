@@ -1,6 +1,21 @@
 import math
-from .models import Player, SchoolPoints, TempPlayer, Tournament, School, Team, Match
+import pandas as pd
+from .models import Category, Player, SchoolPoints, TempPlayer, Tournament, School, Team, Match
 
+
+def add_match_players(team1, team2, match):
+    team1Players = team1 and team1.players.all().distinct() or None
+    team2Players = team2 and team2.players.all().distinct() or None
+    if not (team1Players and team2Players):
+        return
+
+    length = len(team1Players and team1Players or team2Players)
+    for j in range(0, length): 
+        if team1Players and team1Players[j].role == 'Starting': 
+            match.played_by.add(team1Players[j])
+        if team2Players and team2Players[j].role == 'Starting': 
+            match.played_by.add(team2Players[j]) 
+    
 def createTournamentFixture(teams):
     rows = math.ceil(len(teams)/2)
     columns = 0
@@ -15,70 +30,98 @@ def createTournamentFixture(teams):
     # loops through first column
     if len(teams) % 2 == 0:
         for i in range(0, len(teams), 2):
-            try:
-                match = Match.objects.filter(category = category, tournament = tournament, match_number = matchNum)[0]
-            except:
-                match = Match.objects.create(category = category, tournament = tournament, match_number = matchNum, team1 = teams[i], team2 = teams[i+1])
+            match, created = Match.objects.get_or_create(category = category, tournament = tournament, match_number = matchNum)
+            if created:
+                match.team1 = teams[i]
+                match.team2 = teams[i+1]
+                add_match_players(teams[i], teams[i+1], match)
+                match.save()
+
             matchList.append(match)
             matchNum = matchNum + 1
     else:
         for i in range(0, len(teams)-1, 2):
-            try:
-                match = Match.objects.filter(category = category, tournament = tournament, match_number = matchNum)[0]
-            except:
-                match = Match.objects.create(category = category, tournament = tournament, match_number = matchNum, team1 = teams[i], team2 = teams[i+1])            
+            match, created = Match.objects.get_or_create(category = category, tournament = tournament, match_number = matchNum)
+            if created:
+                match.team1 = teams[i]
+                match.team2 = teams[i+1]
+                add_match_players(teams[i], teams[i+1], match)
+                match.save()
+            
             matchList.append(match)
             matchNum = matchNum + 1
         
-        try:
-            match = Match.objects.get_or_create(category = category, tournament = tournament, match_number = matchNum, team2 = teams.last())
-            if matchList[-1].winner and match.team1 != matchList[-1].winner:
-                match.team1 = matchList[-1].winner
-                match.save()
-        except:
-            match = Match.objects.create(category = category, tournament = tournament, match_number = matchNum, team1 = matchList[-1].winner, team2 = teams.last())
+        matchList.pop()
+        match, created = Match.objects.get_or_create(category = category, tournament = tournament, match_number = matchNum)
+        if matchList[-1].winner and match.team1 != matchList[-1].winner:
+            match.team1 = matchList[-1].winner
+            match.save()
+
+        if created:
+            match.team1 = matchList[-1].winner
+            match.team2 = teams.last()
+            add_match_players(teams[i], teams[i+1], match)
+            match.save()
+
+        matchList.append(match)
         matchNum = matchNum + 1
 
-    currentRows = rows * math.pow(0.5, 1)
+    currentRows = math.floor(rows * math.pow(0.5, 1))
     counter = 1
+    if currentRows == 1:
+        return
 
     # loops through the rest of the columns
     while currentRows >= 1:
         futureMatches = []
         if currentRows % 2 == 0:
-            for i in range(0, len(matchList), 2):
-                try:
-                    match = Match.objects.filter(category = category, tournament = tournament, match_number = matchNum)[0]
-                    if match.team1 != matchList[i].winner or match.team2 != matchList[i+1].winner:
-                        match.team1 = matchList[i].winner
-                        match.team2 = matchList[i+1].winner
-                        match.save()
-                except:
-                    match = Match.objects.create(category = category, tournament = tournament, team1 = matchList[i].winner, team2 = matchList[i+1].winner, match_number = matchNum)
+            # why does len have to be matchList-1 ????
+            for i in range(0, len(matchList)-1, 2):
+                match, created = Match.objects.get_or_create(category = category, tournament = tournament, match_number = matchNum)
+                if match.team1 != matchList[i].winner or match.team2 != matchList[i+1].winner:
+                    match.team1 = matchList[i].winner
+                    match.team2 = matchList[i+1].winner
+                    match.save()
+                    
+                if created:
+                    match.team1 = matchList[i].winner
+                    match.team2 = matchList[i+1].winner
+                    add_match_players(matchList[i].winner, matchList[i+1].winner, match)
+                    match.save()
+
                 futureMatches.append(match)
                 matchNum = matchNum + 1
         else:
             for i in range(0, len(matchList)-1, 2):
-                try:
-                    match = Match.objects.filter(category = category, tournament = tournament, match_number = matchNum)[0]
-                    if match.team1 != matchList[i].winner or match.team2 != matchList[i+1].winner:
-                        match.team1 = matchList[i].winner
-                        match.team2 = matchList[i+1].winner
-                        match.save()
-                except:
-                    match = Match.objects.create(category = category, tournament = tournament, team1 = matchList[i].winner, team2 = matchList[i+1].winner, match_number = matchNum)
+                match, created = Match.objects.get_or_create(category = category, tournament = tournament, match_number = matchNum)
+                if match.team1 != matchList[i].winner or match.team2 != matchList[i+1].winner:
+                    match.team1 = matchList[i].winner
+                    match.team2 = matchList[i+1].winner
+                    match.save()
+
+                if created:
+                    match.team1 = matchList[i].winner
+                    match.team2 = matchList[i+1].winner
+                    add_match_players(matchList[i].winner, matchList[i+1].winner, match)
+                    match.save()
+
                 futureMatches.append(match)
                 matchNum = matchNum + 1
 
-            if currentRows != 1:
-                try:
-                    match = Match.objects.filter(category = category, tournament = tournament, match_number = matchNum)[0]
-                    if match.team1 != futureMatches[-1].winner or match.team2 != matchList[-1].winner:
-                        match.team1 = futureMatches[-1].winner
-                        match.team2 = matchList[-1].winner
-                        match.save()
-                except:
-                    match = Match.objects.create(category = category, tournament = tournament, team1 = matchList[i].winner, team2 = matchList[i+1].winner, match_number = matchNum)
+            if currentRows > 1:
+                # matchList.pop() # check if necessary
+                match, created = Match.objects.get_or_create(category = category, tournament = tournament, match_number = matchNum)
+                if match.team1 != futureMatches[-1].winner or match.team2 != matchList[-1].winner:
+                    match.team1 = futureMatches[-1].winner
+                    match.team2 = matchList[-1].winner
+                    match.save()
+                    
+                if created:
+                    match.team1 = futureMatches[-1].winner
+                    match.team2 = matchList[-1].winner
+                    add_match_players(futureMatches[-1].winner, matchList[-1].winner, match)
+                    match.save()
+
                 futureMatches.append(match)
                 matchNum = matchNum + 1   
 
@@ -86,32 +129,12 @@ def createTournamentFixture(teams):
         currentRows = math.floor(rows * math.pow(0.5, counter))
         matchList = futureMatches
 
-def createModelDictList(objects):
-    dictList = []
-    for object in objects:
-        for field in object._meta.fields:
-            key = str(field).split(".")[-1]
-            dictList.append({ key: object._meta.get_field(key) })
-
-    return dictList
-
-def getKeys(object):
-    keyList = []
-    for field in object._meta.fields:
-        if str(field).endswith("id"):
-            keyList.append("#")
-        else:
-            keyList.append(str(field).split(".")[-1]),
-
-    return keyList
-
-
 def on_match_won(winner, loser, score):
     tournament = Tournament.objects.get(id = winner.tournament.id)
     winner.wins = winner.wins + 1
     winner.save()
 
-    winnerSchool = SchoolPoints.objects.get(id = winner.school.id)
+    winnerSchool = tournament.schools.get(school = winner.school.id)
     winnerSchool.points = winnerSchool.points + tournament.points_per_win
     # winnerSchool.wins = winnerSchool.wins + 1
     winnerSchool.save()
@@ -163,7 +186,7 @@ def create_teams(tournament, category):
                 category = tempPlayer.category
             )
         
-        player = Player.objects.create(first_name = tempPlayer.first_name, last_name = tempPlayer.last_name)
+        player = Player.objects.create(first_name = tempPlayer.first_name, last_name = tempPlayer.last_name, role = tempPlayer.role)
         player.save()
 
         team.players.add(player)
@@ -190,30 +213,59 @@ def saveMultiPlayerFormDetails(players, tournament, category):
         tempPlayer.save()
 
 
-def createFixture(teams):
-    matchArray = []
-    firstIteration = False
-    while (teams > 1):
-        teams = (teams+1) >> 1
-        matches = []
+# def createFixture(teams):
+#     matchArray = []
+#     firstIteration = False
+#     while (teams > 1):
+#         teams = (teams+1) >> 1
+#         matches = []
 
-        for i in range(0, teams, 1):
-            if teams % 2 == 1:
-                if teams == 1:
-                    matches.append([1])
-                    continue
+#         for i in range(0, teams, 1):
+#             if teams % 2 == 1:
+#                 if teams == 1:
+#                     matches.append([1])
+#                     continue
                 
-                if firstIteration:
-                    matches.append(["odd1"])
-                else:
-                    matches.append(["odd!1"])
-            else:
-                if firstIteration:
-                    matches.append(["even1"])
-                else:
-                    matches.append(["even!1"])
-        firstIteration = False
+#                 if firstIteration:
+#                     matches.append(["odd1"])
+#                 else:
+#                     matches.append(["odd!1"])
+#             else:
+#                 if firstIteration:
+#                     matches.append(["even1"])
+#                 else:
+#                     matches.append(["even!1"])
+#         firstIteration = False
 
-        matchArray.append(matches)
+#         matchArray.append(matches)
 
-    return matchArray
+#     return matchArray
+
+def savePlayerDetails(df, tournament_id, category_id):
+    if df['fullname']:
+        tournament = Tournament.objects.get(id = tournament_id)
+        category = Category.objects.get(id = category_id)
+
+        length = len(df['fullname'])
+        data = {}
+
+        for i in range(length):
+            name = df['fullname'][i].split(" ")
+            school = School.objects.get(name = df['school'][i].strip())
+
+            player = TempPlayer.objects.get_or_create(
+                tournament = tournament,
+                category = category,
+                first_name = name[0], 
+                last_name = name[1],
+                school = school,
+                team_num = df['team_number'][i],
+                role = df['role'][i],
+            )
+            player[0].save()
+            data[i] = {"first_name": name[0], "last_name": name[1], "school": df['school'][i], "team_number": df['team_number'][i]}
+            
+        print(data)
+        return data
+    else:
+        return {}

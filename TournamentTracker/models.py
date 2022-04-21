@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 
+playerRoles = (('Starting', 'Starting'), ('Substitute', 'Substitute'))
+
 class User(AbstractUser):
     def __str__(self):
         return self.username
@@ -74,6 +76,7 @@ class Tournament(models.Model):
     status = models.CharField(max_length=16, choices=STATUS, default='Not Started', null=True, blank=True)
     points_per_win = models.PositiveSmallIntegerField(default=1, null=True, blank=True)
     image = models.ImageField(null=True, blank=True, default="")
+    # player_list = models.FileField(null=True, blank=True, default=None)
 
     def __str__(self):
         return self.name
@@ -84,6 +87,7 @@ class Tournament(models.Model):
 class Player(models.Model):
     first_name = models.CharField(max_length=100, null=False, blank=False, default="")
     last_name = models.CharField(max_length=100, null=False, blank=False, default="")
+    role = models.CharField(max_length=10, choices=playerRoles ,null=False, blank=False, default="")
     # add age attribute?
 
     def __str__(self):
@@ -105,10 +109,11 @@ class Team(models.Model):
 class TempPlayer(models.Model):
     first_name = models.CharField(max_length=100, null=False, blank=False, default="")
     last_name = models.CharField(max_length=100, null=False, blank=False, default="")
-    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, blank=False, default="")
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, blank=False, default="", related_name="temp_players")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=False, blank=False, default="")
     school = models.ForeignKey(School, on_delete=models.CASCADE, null=False, blank=False)
     team_num = models.PositiveSmallIntegerField(null=False, blank=False, default=0)
+    role = models.CharField(max_length=10, choices=playerRoles ,null=False, blank=False, default="")
 
     def __str__(self):
         return self.first_name + " " + self.last_name
@@ -120,9 +125,10 @@ class Match(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=False, blank=False, related_name="category_matches")
     team1 = models.ForeignKey(Team, on_delete=models.CASCADE, blank = True, null=True, related_name="team1_match")
     team2 = models.ForeignKey(Team, on_delete=models.CASCADE, blank = True, null=True, related_name="team2_match")
-    winner = models.ForeignKey(Team, on_delete=models.CASCADE, default="", blank = True, null=True,related_name="match_winner")
+    winner = models.ForeignKey(Team, on_delete=models.CASCADE, blank = True, null=True,related_name="match_winner")
     score = models.CharField(max_length=32, default="", null=True, blank=True)
     match_number = models.PositiveSmallIntegerField(null=False, blank=False, default=1)
+    played_by = models.ManyToManyField(Player, blank=True, related_name="matches_played")
 
     def __str__(self):
         return self.tournament.name + " - Match" + str(self.match_number) + " ( " + self.category.event.name + " )"

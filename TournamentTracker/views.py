@@ -1,5 +1,3 @@
-from unicodedata import category
-from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
 import math
 from django.shortcuts import render
@@ -7,6 +5,7 @@ from django.urls import reverse, reverse_lazy
 from django.contrib.auth import authenticate, logout, login
 from django.views import generic
 from django.db.models import Q
+import pandas as pd
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -14,10 +13,10 @@ from rest_framework import status
 
 from django.views.decorators.csrf import csrf_exempt
 
-from .forms import MatchForm, MultiPlayerForm, MultiSchoolForm, PlayerForm, SchoolForm, TeamForm, TournamentForm, WinnerForm
+from .forms import MatchExcelForm, PlayerExcelForm, MatchForm, MultiPlayerForm, MultiSchoolForm, PlayerForm, SchoolForm, TeamForm, TournamentForm, WinnerForm
 from .models import Category, EventType, Match, Player, School, SchoolPoints, Team, Tournament
 from .serializers import MatchSerializer, SchoolSerializer, TeamSerializer, TournamentDetailsSerializer, TournamentSerializer
-from .utils import create_teams, get_tournament_winner, on_match_edited, on_match_won, createTournamentFixture, saveMultiPlayerFormDetails
+from .utils import create_teams, get_tournament_winner, on_match_edited, on_match_won, createTournamentFixture, saveMultiPlayerFormDetails, savePlayerDetails
 
 # Create your views here.
 
@@ -169,6 +168,7 @@ class TournamentList(generic.ListView):
 class TournamentDetails(generic.DetailView):
     model = Tournament
     template_name = 'Tournament/tournament-details.html'
+    extra_context = {'playerExcelForm': PlayerExcelForm, 'matchExcelForm': MatchExcelForm}
 
 
 class SchoolEdit(generic.UpdateView):
@@ -200,12 +200,12 @@ class MultiSchoolCreate(generic.CreateView):
             
             for school_name in schools:
                 school_name = school_name.strip()
-                school = School.objects.get(name = school_name)
+                school = School.objects.get_or_create(name = school_name)[0]
                 schoolPoints = SchoolPoints.objects.create(school = school)
                 tournament.schools.add(schoolPoints)
             tournament.save()
-            
-        return HttpResponseRedirect(reverse_lazy("add_player", kwargs = {'tournament_id': tournament.id}))
+        # reverse_lazy("add_player", kwargs = {'tournament_id': tournament.id})
+        return HttpResponseRedirect(reverse_lazy("details_tournament", kwargs = {'pk': tournament.id}))
 
 class SchoolDetails(generic.ListView):
     model = School
@@ -322,7 +322,7 @@ class DeclareMatchWinner(generic.UpdateView):
     model = Match
     form_class = WinnerForm
     template_name = 'Tournament/form.html'
-    success_url = reverse_lazy("details_team")
+    success_url = reverse_lazy("details_tournament")
     extra_context = {
         'title': 'Declare Match Winner', 
     }
@@ -455,11 +455,33 @@ class Home(generic.TemplateView):
 def search(request):
     return HttpResponseRedirect(reverse("index", kwargs={'search_query': request.POST["search_query"]}))
 
-def start_tournament(request, tournament_id):
+def uploadPlayerList(request, tournament_id):
+    if request.method == "POST":
+        df = pd.read_excel(request.FILES["player_list"]).to_dict()
+        savePlayerDetails(df, tournament_id, 1)
+
+        print(df)
+        
+    return HttpResponseRedirect(reverse("details_tournament", kwargs={'pk': tournament_id}))
+
+# def uploadMatchList(request, tournament_id):
+#     if request.method == "POST":
+#         df = pd.read_excel(request.FILES["match_list"]).to_dict()
+
+#         print(df)
+        
+#     return HttpResponseRedirect(reverse("details_tournament", kwargs={'pk': tournament_id}))
+
+def createMatchFixtures(request, tournament_id):
     tournament = Tournament.objects.get(id = tournament_id)
     for category in tournament.categories.all():
         create_teams(tournament, category)
         createTournamentFixture(Team.objects.filter(tournament = tournament, category = category))
+    
+    return HttpResponseRedirect(reverse("details_tournament", kwargs={'pk': tournament_id}))
+
+def start_tournament(request, tournament_id):
+    tournament = Tournament.objects.get(id = tournament_id)
     
     tournament.status = "Ongoing"
     tournament.save()
@@ -474,6 +496,6 @@ def end_tournament(request, tournament_id):
 
     return HttpResponseRedirect(reverse("index"))
 
-def returnToSamePage(request):
+def returnToPrevPage(request):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
     

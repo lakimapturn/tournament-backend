@@ -7,32 +7,35 @@
     <div class="card-header bg-transparent">
       <!-- prettier-ignore -->
       <h1 class="display-">Tournament Details: <br /> {{object.name}}</h1>
-      <div class="row align-items-center">
+      {% if object.status != 'Not Started' %}
+      <hr />
+      <div class="align-items-center mx-4">
         <div class="btn-group" role="group" aria-label="Basic outlined example">
           <a
             href="{% url 'add_player' object.id %}"
             type="button"
-            class="btn btn-outline-secondary"
+            class="btn btn-primary"
           >
             Add Player
           </a>
           <a
             href="{% url 'details_team' object.id %}"
             type="button"
-            class="btn btn-outline-secondary"
+            class="btn btn-primary"
           >
             View Teams
           </a>
           <a
             href="{% url 'details_match' object.id %}"
             type="button"
-            class="btn btn-outline-secondary"
+            class="btn btn-primary"
           >
             View Matches
           </a>
         </div>
       </div>
       <br />
+      {% endif %}
     </div>
     <div class="card-body">
       <div class="row align-items-center">
@@ -151,12 +154,21 @@
         >Edit Tournament</a
       >
       {% if object.status == 'Not Started' %}
-      <a
+      <!-- <a
         role="button"
         href="{% url 'start_tournament' object.id %}"
         class="btn btn-primary"
         >Start Tournament</a
+      > -->
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#startTournament"
       >
+        Start Tournament
+      </button>
       {% else %}
       <a
         role="button"
@@ -169,4 +181,105 @@
   </div>
 </div>
 
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="startTournament"
+  tabindex="-1"
+  aria-labelledby="startTournamentLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <!-- prettier-ignore -->
+    {% with playersExist=object.temp_players.all schoolsExist=object.schools.all matchesExist=object.tournament_matches.all teamsExist=object.tournament_teams.all %}
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="startTournamentLabel">
+          Before We Begin The Tournament...
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-group text-start list-group-numbered">
+          <li
+            class="list-group-item {% if schoolsExist %} list-group-item-success {% else %} list-group-item-danger {% endif %}"
+          >
+            {% if schoolsExist %} Added Schools ✔ {% else %}
+            <a
+              type="button"
+              href="{% url 'add_school' object.id %}"
+              class="btn btn-primary btn-sm"
+              >Add Schools</a
+            >
+            {% endif %}
+          </li>
+          <li
+            class="list-group-item {% if playersExist or teamsExist %} list-group-item-success {% else %} list-group-item-danger {% endif %}"
+          >
+            <!-- prettier-ignore -->
+            {% if playersExist or teamsExist %} Uploaded Player List. ✔ {% else %} Download
+            the template
+            <a href="{% static 'excel/player_list.xlsx' %}">excel file</a>.
+            <br />
+            <form
+              method="POST"
+              action="{% url 'upload_player_list' object.id %}"
+              enctype="multipart/form-data"
+            >
+              {% csrf_token %} {{playerExcelForm.as_p}}
+              <input class="btn btn-primary" type="submit" value="Submit" />
+            </form>
+            {% endif %}
+          </li>
+          <li
+            class="list-group-item {% if matchesExist %} list-group-item-success {% else %} list-group-item-danger {% endif %}"
+          >
+            {% if matchesExist %} Matches Created ✔ {% else %}
+            <a href="{% url 'create_matches' object.id %}"
+              >Randomize Match Generation</a
+            >
+            <br />
+            <p class="leading m-0">OR</p>
+
+            {% endif %}
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <!-- prettier-ignore -->
+        {% if playersExist or teamsExist and schoolsExist and matchesExist %}
+        <a
+          type="button"
+          class="btn btn-primary"
+          href="{% url 'start_tournament' object.id %}"
+          >Start Tournament
+        </a>
+        {% else %}
+        <button class="btn btn-primary" disabled="true">
+          Start Tournament
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endwith %}
+</div>
+
 {% endblock %}
+
+<!-- <form
+              method="POST"
+              action="{% url 'upload_match_list' object.id %}"
+              enctype="multipart/form-data"
+            >
+              {% csrf_token %} {{matchExcelForm.as_p}}
+              <input class="btn btn-primary" type="submit" value="Submit" />
+            </form> -->

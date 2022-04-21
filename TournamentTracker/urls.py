@@ -48,7 +48,12 @@ urlpatterns = [
 
     path('start-tournament/<int:tournament_id>', views.start_tournament, name="start_tournament"),
     path('end-tournament/<int:tournament_id>', views.end_tournament, name="end_tournament"),
-    path('add-another', views.returnToSamePage, name="add_another"),
+    path('add-another', views.returnToPrevPage, name="add_another"),
+
+    path('upload-player-list/<int:tournament_id>', views.uploadPlayerList, name="upload_player_list"),
+    # path('upload-match-list/<int:tournament_id>', views.uploadMatchList, name="upload_match_list"),
+    path('create-matches/<int:tournament_id>', views.createMatchFixtures, name="create_matches"),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+# urlpatterns += static(settings.STATIC_URL, document_root = settings.STATIC_ROOT)
