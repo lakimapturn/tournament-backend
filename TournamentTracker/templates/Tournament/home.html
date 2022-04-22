@@ -1,24 +1,22 @@
 {% extends "Tournament/layout.html" %} {% block body %} {% load list_tags %}
-
 <div class="container-sm mt-5 text-center">
   <div class="row justify-content-end">
     <div class="col-md-4">
       <form method="POST" action="{% url 'search' %}" class="input-group mb-3">
         {% csrf_token %}
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Search Tournaments"
-          aria-label="search"
-          aria-describedby="search-button"
-          required
-          minlength="2"
-          name="search_query"
-          autocomplete="off"
-        />
-        <button class="btn btn-secondary" type="submit" id="search-button">
-          Search🔍
-        </button>
+        <div class="form-outline">
+          <input
+            type="search"
+            id="form1"
+            class="form-control"
+            required
+            minlength="2"
+            name="search_query"
+            autocomplete="off"
+          />
+          <label class="form-label" for="form1">Search Tournaments</label>
+        </div>
+        <button type="submit" class="btn btn-secondary">🔍</button>
       </form>
     </div>
   </div>

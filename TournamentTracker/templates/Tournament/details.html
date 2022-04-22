@@ -1,5 +1,8 @@
 {% extends "Tournament/layout.html" %} {% block body %}
 <style>
+  th {
+    vertical-align: middle;
+  }
   .pagination > li > a {
     background-color: white;
     color: #5a4181;
@@ -32,13 +35,13 @@
   class="container-fluid text-center my-5"
 >
   <h1 class="display-6">{{title}} Details</h1>
-  <table class="table table-dark table-striped table-bordered">
+  <table class="table table-sm table-dark table-striped table-bordered">
     {% include inner_template %}
   </table>
   {% if add_url %}
     <a
       type="button"
-      class="btn btn-outline-primary"
+      class="btn btn-success"
       {% if add_url_parameter %}
         href="{% url add_url add_url_parameter %}"
       {% else %}

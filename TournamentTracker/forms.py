@@ -15,7 +15,6 @@ class SchoolForm(ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'logo': forms.FileInput(attrs={'class': 'form-control'}),
-            'points': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):

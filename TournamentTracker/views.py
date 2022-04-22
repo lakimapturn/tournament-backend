@@ -131,7 +131,7 @@ class TournamentEdit(generic.UpdateView):
         form = context["form"]
         # form.fields['categories'].queryset = tournament.categories
         form.fields['event_types'].queryset = tournament.event_types
-        form.fields['winner'].queryset = tournament.schools
+        # form.fields['winner'].queryset = tournament.schools
         # ask sir if he would prefer having all options open when editing or narrowing the options down
 
         return context
@@ -443,14 +443,13 @@ class PlayerDetails(generic.ListView):
 class Home(generic.TemplateView):
     template_name = "Tournament/home.html"
     extra_context = {
-        'tournaments': Tournament.objects.all()
+        "tournaments": Tournament.objects.all() 
     }
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+
+    def get(self, request, *args, **kwargs):
         if self.kwargs != {}:
             self.extra_context["tournaments"] = Tournament.objects.filter(name__startswith = self.kwargs['search_query'])
-        return context
+        return super().get(request, *args, **kwargs)
 
 def search(request):
     return HttpResponseRedirect(reverse("index", kwargs={'search_query': request.POST["search_query"]}))
