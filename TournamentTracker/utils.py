@@ -50,8 +50,8 @@ def createTournamentFixture(teams):
             
             matchList.append(match)
             matchNum = matchNum + 1
-        
         matchList.pop()
+
         match, created = Match.objects.get_or_create(category = category, tournament = tournament, match_number = matchNum)
         if matchList[-1].winner and match.team1 != matchList[-1].winner:
             match.team1 = matchList[-1].winner
@@ -76,7 +76,7 @@ def createTournamentFixture(teams):
         futureMatches = []
         if currentRows % 2 == 0:
             # why does len have to be matchList-1 ????
-            for i in range(0, len(matchList)-1, 2):
+            for i in range(0, len(matchList), 2):
                 match, created = Match.objects.get_or_create(category = category, tournament = tournament, match_number = matchNum)
                 if match.team1 != matchList[i].winner or match.team2 != matchList[i+1].winner:
                     match.team1 = matchList[i].winner
@@ -93,6 +93,7 @@ def createTournamentFixture(teams):
                 matchNum = matchNum + 1
         else:
             for i in range(0, len(matchList)-1, 2):
+                print("here!")
                 match, created = Match.objects.get_or_create(category = category, tournament = tournament, match_number = matchNum)
                 if match.team1 != matchList[i].winner or match.team2 != matchList[i+1].winner:
                     match.team1 = matchList[i].winner
