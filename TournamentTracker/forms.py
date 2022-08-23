@@ -4,9 +4,11 @@ from django import forms
 
 from .models import Match, Player, School, Team, TempPlayer, Tournament
 
+
 class DateInput(forms.DateInput):
     input_type = 'date'
-    attrs={'class': 'form-control'}
+    attrs = {'class': 'form-control'}
+
 
 class SchoolForm(ModelForm):
     class Meta:
@@ -20,11 +22,13 @@ class SchoolForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(SchoolForm, self).__init__(*args, **kwargs)
 
+
 class MultiSchoolForm(ModelForm):
     schools = forms.CharField(
-        widget = forms.Textarea(attrs={'class': 'form-control'}),
-        help_text = '<i>Add every school on a new line</i>'
+        widget=forms.Textarea(attrs={'class': 'form-control'}),
+        help_text='<i>Add every school on a new line</i>'
     )
+
     class Meta:
         model = School
         fields = ('schools',)
@@ -36,14 +40,17 @@ class MultiSchoolForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(MultiSchoolForm, self).__init__(*args, **kwargs)
 
+
 class TournamentForm(ModelForm):
     class Meta:
         model = Tournament
-        fields = ('name', 'sport', 'start_date', 'end_date', 'categories', 'event_types', 'points_per_win', 'image')
+        fields = ('name', 'sport', 'start_date', 'end_date', 'cutoff_month',
+                  'categories', 'event_types', 'points_per_win', 'image')
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'sport': forms.Select(attrs={'class': 'form-control'}),
             # 'winner': forms.Select(attrs={'class': 'form-control'}),
+            'cutoff_month': forms.Select(attrs={'class': 'form-control'}),
             'start_date': DateInput(),
             'end_date': DateInput(),
             'image': forms.FileInput(attrs={'class': 'form-control'}),
@@ -54,6 +61,7 @@ class TournamentForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TournamentForm, self).__init__(*args, **kwargs)
+
 
 class TeamForm(ModelForm):
     class Meta:
@@ -69,7 +77,6 @@ class TeamForm(ModelForm):
             'players': forms.CheckboxSelectMultiple(attrs={'class': 'column-checkbox'}),
             'team_num': forms.NumberInput(attrs={'class': 'form-control'}),
         }
-        
 
     def __init__(self, *args, **kwargs):
         super(TeamForm, self).__init__(*args, **kwargs)
@@ -95,6 +102,7 @@ class TempPlayerForm(ModelForm):
         super(TempPlayerForm, self).__init__(*args, **kwargs)
         self.fields['team_num'].initial = 1
 
+
 class PlayerForm(ModelForm):
     class Meta:
         model = Player
@@ -104,14 +112,14 @@ class PlayerForm(ModelForm):
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
+
 class MultiPlayerForm(ModelForm):
     players = forms.CharField(
         widget=forms.Textarea(attrs={
-            'class': 'form-control', 
+            'class': 'form-control',
             'placeholder': 'First_name, Last_name, School, Team_number'
         }),
-        help_text=
-        '<i>Add every player on a new line</i><br /><i>Follow this format: First_name, Last_name, School Team_number</i><br /><i>Ensure that the school name entered corresponds to the name entered previously</i>',
+        help_text='<i>Add every player on a new line</i><br /><i>Follow this format: First_name, Last_name, School Team_number</i><br /><i>Ensure that the school name entered corresponds to the name entered previously</i>',
     )
 
     class Meta:
@@ -124,6 +132,7 @@ class MultiPlayerForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(MultiPlayerForm, self).__init__(*args, **kwargs)
+
 
 class MatchForm(ModelForm):
     class Meta:
@@ -154,19 +163,21 @@ class WinnerForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(WinnerForm, self).__init__(*args, **kwargs)
 
+
 class PlayerExcelForm(Form):
     player_list = forms.FileField(widget=forms.FileInput(attrs={
-            'class': 'form-control', 
-        }))
+        'class': 'form-control',
+    }))
 
     def __init__(self, *args, **kwargs):
         super(PlayerExcelForm, self).__init__(*args, **kwargs)
         self.fields['player_list'].label = "Upload the Player List Here:"
 
+
 class MatchExcelForm(Form):
     match_list = forms.FileField(widget=forms.FileInput(attrs={
-            'class': 'form-control', 
-        }))
+        'class': 'form-control',
+    }))
 
     def __init__(self, *args, **kwargs):
         super(MatchExcelForm, self).__init__(*args, **kwargs)
