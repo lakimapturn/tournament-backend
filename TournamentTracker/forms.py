@@ -1,6 +1,5 @@
 from django import forms
 from django.forms import Form, ModelForm
-from django import forms
 
 from .models import Match, Player, School, Team, TempPlayer, Tournament
 

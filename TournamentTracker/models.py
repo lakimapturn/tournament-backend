@@ -18,6 +18,7 @@ months = (
     ('November', 'November'),
     ('December', 'December'),
 )
+genderChoices = (('Female', 'Female'), ('Male', 'Male'))
 
 
 class User(AbstractUser):
@@ -77,11 +78,9 @@ class EventType(models.Model):
 
 
 class Category(models.Model):
-    gender_choices = (('Female', 'Female'), ('Male', 'Male'))
-
     age = models.PositiveIntegerField(default=0, null=False, blank=False)
     gender = models.CharField(max_length=6, default="",
-                              choices=gender_choices, null=False, blank=False)
+                              choices=genderChoices, null=False, blank=False)
     event = models.ForeignKey(
         EventType, on_delete=models.CASCADE, blank=True, null=True)
 
@@ -114,13 +113,28 @@ class Tournament(models.Model):
     image = models.ImageField(null=True, blank=True, default="")
     cutoff_month = models.CharField(
         max_length=10, choices=months, default="September", null=False, blank=False)
-    # player_list = models.FileField(null=True, blank=True, default=None)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        ordering = ('name',)
+        ordering = ('-start_date', '-end_date')
+
+
+class PermPlayer(models.Model):
+    first_name = models.CharField(
+        max_length=100, null=False, blank=False, default="")
+    last_name = models.CharField(
+        max_length=100, null=False, blank=False, default="")
+    tournaments = models.ManyToManyField(
+        Tournament, blank=True, related_name="players")
+    dob = models.DateField(null=False, blank=False)
+    gender = models.CharField(max_length=6, default="",
+                              choices=genderChoices, null=False, blank=False)
+    lifetime_wins = models.PositiveSmallIntegerField(
+        default=0, null=False, blank=False)
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE, null=False, blank=False)
 
 
 class Player(models.Model):
@@ -130,7 +144,8 @@ class Player(models.Model):
         max_length=100, null=False, blank=False, default="")
     role = models.CharField(
         max_length=10, choices=playerRoles, null=False, blank=False, default="")
-    # add age attribute?
+    player_reference = models.ForeignKey(
+        PermPlayer, on_delete=models.CASCADE, null=False, blank=False)
 
     def __str__(self):
         return self.first_name + " " + self.last_name

@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', 'gma-tournament-admin.herokuapp.com']
 
-CORS_ORIGIN_ALLOW_ALL = True # change to false when app is deployed
+CORS_ORIGIN_ALLOW_ALL = True  # change to false when app is deployed
 
 # Application definition
 
@@ -147,3 +147,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images')
 # Login Url
 
 LOGIN_URL = 'login'
+
+
+# Default Auto Field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

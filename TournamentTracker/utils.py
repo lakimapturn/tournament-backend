@@ -75,8 +75,8 @@ def createTournamentFixture(teams) -> None:
 
     currentRows = math.floor(rows * math.pow(0.5, 1))
     counter = 1
-    if currentRows == 1:
-        return
+    # if currentRows == 1:
+    #     return
 
     # loops through the rest of the columns
     while currentRows >= 1:
@@ -120,8 +120,8 @@ def createTournamentFixture(teams) -> None:
                 futureMatches.append(match)
                 matchNum = matchNum + 1
 
-            if currentRows > 1:
-                # matchList.pop() # check if necessary
+            if currentRows >= 1:
+                matchList.pop()  # check if necessary
                 match, created = Match.objects.get_or_create(
                     category=category, tournament=tournament, match_number=matchNum)
                 if match.team1 != futureMatches[-1].winner or match.team2 != matchList[-1].winner:
@@ -292,9 +292,9 @@ def getCategory(dob, gender, event, tournament: Tournament) -> Category:
 
     cutoffMonth = tournament.cutoff_month
 
-    for category in tournament.categories.filter(age__gte=age).order_by('age'):
-        if category.age > age or (category == age and months[cutoffMonth] <= dob.month):
-            return Category.objects.get(age=category.age, gender=gender, event=event)
+    for category in tournament.categories.filter(age__gte=age, gender=gender, event=event).order_by('age'):
+        if category.age > age or (category.age == age and months[cutoffMonth] <= dob.month):
+            return category
 
 
 def savePlayerDetails(df, tournament_id, category_id):
@@ -305,9 +305,11 @@ def savePlayerDetails(df, tournament_id, category_id):
         data = {}
 
         for i in range(length):
-            print(df['dob'])
             category = getCategory(
                 df['dob'][i], df['gender'][i], EventType.objects.get(id=1), tournament)
+
+            if category == None:
+                continue
 
             name = df['fullname'][i].split(" ")
             school = School.objects.get(name=df['school'][i].strip())
