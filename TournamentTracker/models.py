@@ -144,8 +144,8 @@ class Player(models.Model):
         max_length=100, null=False, blank=False, default="")
     role = models.CharField(
         max_length=10, choices=playerRoles, null=False, blank=False, default="")
-    player_reference = models.ForeignKey(
-        PermPlayer, on_delete=models.CASCADE, null=False, blank=False)
+    # player_reference = models.ForeignKey(
+    #     PermPlayer, on_delete=models.CASCADE, null=False, blank=False)
 
     def __str__(self):
         return self.first_name + " " + self.last_name
