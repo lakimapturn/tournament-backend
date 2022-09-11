@@ -1,5 +1,4 @@
 from django.http import HttpResponse, HttpResponseRedirect
-import math
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth import authenticate, logout, login
