@@ -500,7 +500,7 @@ def uploadPlayerList(request, tournament_id):
         df = pd.read_excel(request.FILES["player_list"]).to_dict()
         savePlayerDetails(df, tournament_id, 1)
 
-        print(df)
+        # print(df)
 
     return HttpResponseRedirect(reverse("details_tournament", kwargs={'pk': tournament_id}))
 

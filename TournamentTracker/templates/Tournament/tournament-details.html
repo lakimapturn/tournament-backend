@@ -1,4 +1,6 @@
 {% extends "Tournament/layout.html" %} {% block body %} {% load static %}
+<!-- prettier-ignore -->
+{% load list_tags %}
 <div
   class="container-sm mt-4 p-4 text-center"
   style="width: 55%; background-color: #24305e !important"
@@ -224,7 +226,7 @@
             <!-- prettier-ignore -->
             {% if playersExist or teamsExist %} Uploaded Player List. ✔ {% else %} Download
             the template
-            <a href="{% static 'excel/player_list.xlsx' %}">excel file</a>.
+            <a href="{% getValidatedTemplate tournament %}">excel file</a>.
             <br />
             <form
               method="POST"
