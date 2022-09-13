@@ -49,7 +49,7 @@ def getValidatedTemplate(tournament: Tournament):
 # Adding Data Validation
     tournamentSchools = tournament.schools.all()
     worksheet.data_validation('C2:C400', {'validate': 'list',
-                                          'source': [school.name for school in tournamentSchools]})
+                                          'source': [school.school.name for school in tournamentSchools]})
 
     worksheet.data_validation('F2:F400', {'validate': 'list',
                                           'source': ["Male", "Female"]})

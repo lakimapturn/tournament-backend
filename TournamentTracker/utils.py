@@ -75,6 +75,7 @@ def createTournamentFixture(teams) -> None:
 
     currentRows = math.floor(rows * math.pow(0.5, 1))
     counter = 1
+
     # if currentRows == 1:
     #     return
 
@@ -102,7 +103,6 @@ def createTournamentFixture(teams) -> None:
                 matchNum = matchNum + 1
         else:
             for i in range(0, len(matchList)-1, 2):
-                print("here!")
                 match, created = Match.objects.get_or_create(
                     category=category, tournament=tournament, match_number=matchNum)
                 if match.team1 != matchList[i].winner or match.team2 != matchList[i+1].winner:
@@ -282,8 +282,7 @@ months = {
 def formatDate(dateStr) -> date:
     dateStr = str(dateStr)
     d = dateStr.split("-")
-    d[2].split(" ", 1)[0]
-    return date(int(d[0]), int(d[2].split(" ", 1)[0]), int(d[1]))
+    return date(int(d[0]), int(d[1]), int(d[2].split(" ", 1)[0]))
 
 
 def getCategory(dob, gender, event, tournament: Tournament) -> Category:
@@ -306,7 +305,7 @@ def savePlayerDetails(df, tournament_id, category_id):
 
         for i in range(length):
             category = getCategory(
-                df['dob'][i], df['gender'][i], EventType.objects.get(id=1), tournament)
+                df['dob'][i], df['gender'][i], EventType.objects.get(name=df['event'][i]), tournament)
 
             if category == None:
                 continue
