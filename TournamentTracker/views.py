@@ -393,7 +393,9 @@ class MatchDetails(generic.ListView):
     def get_queryset(self):
         print(self.kwargs)
         if self.kwargs != {}:
-            return Match.objects.filter(tournament=self.kwargs['tournament_id'])
+            tournament = self.kwargs['tournament_id']
+            createMatchFixtures(self.request, tournament)
+            return Match.objects.filter(tournament=tournament)
         return Match.objects.all()
 
 

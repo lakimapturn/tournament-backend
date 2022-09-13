@@ -120,8 +120,14 @@ def createTournamentFixture(teams) -> None:
                 futureMatches.append(match)
                 matchNum = matchNum + 1
 
-            if currentRows >= 1:
-                matchList.pop()  # check if necessary
+            """ 
+            In the case of 2 matches happening in first round, matchList has 2 matches. 
+            It adds the final match to the future matches and then doesnt run anymore which is perfect.
+            Behaviour with more matches may be different
+            """
+
+            if currentRows > 1:
+                # matchList.pop()  # check if necessary
                 match, created = Match.objects.get_or_create(
                     category=category, tournament=tournament, match_number=matchNum)
                 if match.team1 != futureMatches[-1].winner or match.team2 != matchList[-1].winner:
