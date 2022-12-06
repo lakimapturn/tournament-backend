@@ -102,6 +102,26 @@ def createTournamentFixture(teams) -> None:
                 futureMatches.append(match)
                 matchNum = matchNum + 1
         else:
+            if currentRows == 1:
+                match, created = Match.objects.get_or_create(
+                    category=category, tournament=tournament, match_number=matchNum)
+
+                loser1 = matchList[0].winner == matchList[0].team1 and matchList[0].team2 or matchList[0].team1
+                loser2 = matchList[1].winner == matchList[1].team1 and matchList[1].team2 or matchList[1].team1
+
+                if match.team1 != loser1 or match.team2 != loser2:
+                    match.team1 = loser1
+                    match.team2 = loser2
+                    match.save()
+
+                if created:
+                    match.team1 = loser1
+                    match.team2 = loser2
+                    add_match_players(
+                        matchList[i].winner, matchList[i+1].winner, match)
+                    match.save()
+                matchNum += 1
+
             for i in range(0, len(matchList)-1, 2):
                 match, created = Match.objects.get_or_create(
                     category=category, tournament=tournament, match_number=matchNum)
@@ -123,7 +143,8 @@ def createTournamentFixture(teams) -> None:
             """ 
             In the case of 2 matches happening in first round, matchList has 2 matches. 
             It adds the final match to the future matches and then doesnt run anymore which is perfect.
-            Behaviour with more matches may be different
+            Behaviour with more matches may be different.
+            The next if statement shouldnt run because in the case of 1 match left, that match has already been added
             """
 
             if currentRows > 1:
