@@ -121,20 +121,20 @@ class Tournament(models.Model):
         ordering = ('-start_date', '-end_date')
 
 
-class PermPlayer(models.Model):
-    first_name = models.CharField(
-        max_length=100, null=False, blank=False, default="")
-    last_name = models.CharField(
-        max_length=100, null=False, blank=False, default="")
-    tournaments = models.ManyToManyField(
-        Tournament, blank=True, related_name="players")
-    dob = models.DateField(null=False, blank=False)
-    gender = models.CharField(max_length=6, default="",
-                              choices=genderChoices, null=False, blank=False)
-    lifetime_wins = models.PositiveSmallIntegerField(
-        default=0, null=False, blank=False)
-    school = models.ForeignKey(
-        School, on_delete=models.CASCADE, null=False, blank=False)
+# class PermPlayer(models.Model):
+#     first_name = models.CharField(
+#         max_length=100, null=False, blank=False, default="")
+#     last_name = models.CharField(
+#         max_length=100, null=False, blank=False, default="")
+#     tournaments = models.ManyToManyField(
+#         Tournament, blank=True, related_name="players")
+#     dob = models.DateField(null=False, blank=False)
+#     gender = models.CharField(max_length=6, default="",
+#                               choices=genderChoices, null=False, blank=False)
+#     lifetime_wins = models.PositiveSmallIntegerField(
+#         default=0, null=False, blank=False)
+#     school = models.ForeignKey(
+#         School, on_delete=models.CASCADE, null=False, blank=False)
 
 
 class Player(models.Model):

@@ -19,6 +19,9 @@ def add_match_players(team1, team2, match):
 
 
 def createTournamentFixture(teams) -> None:
+    if (len(teams) == 0):
+        return
+
     rows = math.ceil(len(teams)/2)
     columns = 0
     while (math.pow(2, columns) < rows):
@@ -33,51 +36,28 @@ def createTournamentFixture(teams) -> None:
     # loops through first column
     if len(teams) % 2 == 0:
         for i in range(0, len(teams), 2):
-            match, created = Match.objects.get_or_create(
-                category=category, tournament=tournament, match_number=matchNum)
-            if created:
-                match.team1 = teams[i]
-                match.team2 = teams[i+1]
-                add_match_players(teams[i], teams[i+1], match)
-                match.save()
+            match = updateMatch(tournament, category,
+                                matchNum, teams[i], teams[i+1])
 
             matchList.append(match)
             matchNum = matchNum + 1
     else:
-        print(len(teams))
         for i in range(0, len(teams)-1, 2):
-            match, created = Match.objects.get_or_create(
-                category=category, tournament=tournament, match_number=matchNum)
-            if created:
-                match.team1 = teams[i]
-                match.team2 = teams[i+1]
-                add_match_players(teams[i], teams[i+1], match)
-                match.save()
+            match = updateMatch(tournament, category,
+                                matchNum, teams[i], teams[i+1])
 
             matchList.append(match)
             matchNum = matchNum + 1
         # matchList.pop()
 
-        match, created = Match.objects.get_or_create(
-            category=category, tournament=tournament, match_number=matchNum)
-        if matchList[-1].winner and match.team1 != matchList[-1].winner:
-            match.team1 = matchList[-1].winner
-            match.save()
-
-        if created:
-            match.team1 = matchList[-1].winner
-            match.team2 = teams.last()
-            add_match_players(teams[i], teams[i+1], match)
-            match.save()
+        match = updateMatch(tournament, category, matchNum,
+                            matchList[-1].winner, teams.last())
 
         matchList.append(match)
-        matchNum = matchNum + 1
+        matchNum += 1
 
     currentRows = math.floor(rows * math.pow(0.5, 1))
-    counter = 1
-
-    # if currentRows == 1:
-    #     return
+    colCounter = 1
 
     # loops through the rest of the columns
     while currentRows >= 1:
@@ -85,60 +65,26 @@ def createTournamentFixture(teams) -> None:
         if currentRows % 2 == 0:
             # why does len have to be matchList-1 ????
             for i in range(0, len(matchList), 2):
-                match, created = Match.objects.get_or_create(
-                    category=category, tournament=tournament, match_number=matchNum)
-                if match.team1 != matchList[i].winner or match.team2 != matchList[i+1].winner:
-                    match.team1 = matchList[i].winner
-                    match.team2 = matchList[i+1].winner
-                    match.save()
-
-                if created:
-                    match.team1 = matchList[i].winner
-                    match.team2 = matchList[i+1].winner
-                    add_match_players(
-                        matchList[i].winner, matchList[i+1].winner, match)
-                    match.save()
+                match = updateMatch(
+                    tournament, category, matchNum, matchList[i].winner, matchList[i+1].winner)
 
                 futureMatches.append(match)
-                matchNum = matchNum + 1
+                matchNum += 1
         else:
             if currentRows == 1:
-                match, created = Match.objects.get_or_create(
-                    category=category, tournament=tournament, match_number=matchNum)
-
                 loser1 = matchList[0].winner == matchList[0].team1 and matchList[0].team2 or matchList[0].team1
                 loser2 = matchList[1].winner == matchList[1].team1 and matchList[1].team2 or matchList[1].team1
 
-                if match.team1 != loser1 or match.team2 != loser2:
-                    match.team1 = loser1
-                    match.team2 = loser2
-                    match.save()
+                updateMatch(tournament, category, matchNum, loser1, loser2)
 
-                if created:
-                    match.team1 = loser1
-                    match.team2 = loser2
-                    add_match_players(
-                        matchList[i].winner, matchList[i+1].winner, match)
-                    match.save()
                 matchNum += 1
 
             for i in range(0, len(matchList)-1, 2):
-                match, created = Match.objects.get_or_create(
-                    category=category, tournament=tournament, match_number=matchNum)
-                if match.team1 != matchList[i].winner or match.team2 != matchList[i+1].winner:
-                    match.team1 = matchList[i].winner
-                    match.team2 = matchList[i+1].winner
-                    match.save()
-
-                if created:
-                    match.team1 = matchList[i].winner
-                    match.team2 = matchList[i+1].winner
-                    add_match_players(
-                        matchList[i].winner, matchList[i+1].winner, match)
-                    match.save()
+                match = updateMatch(
+                    tournament, category, matchNum, matchList[i].winner, matchList[i+1].winner)
 
                 futureMatches.append(match)
-                matchNum = matchNum + 1
+                matchNum += 1
 
             """ 
             In the case of 2 matches happening in first round, matchList has 2 matches. 
@@ -149,26 +95,35 @@ def createTournamentFixture(teams) -> None:
 
             if currentRows > 1:
                 # matchList.pop()  # check if necessary
-                match, created = Match.objects.get_or_create(
-                    category=category, tournament=tournament, match_number=matchNum)
-                if match.team1 != futureMatches[-1].winner or match.team2 != matchList[-1].winner:
-                    match.team1 = futureMatches[-1].winner
-                    match.team2 = matchList[-1].winner
-                    match.save()
 
-                if created:
-                    match.team1 = futureMatches[-1].winner
-                    match.team2 = matchList[-1].winner
-                    add_match_players(
-                        futureMatches[-1].winner, matchList[-1].winner, match)
-                    match.save()
+                match = updateMatch(
+                    tournament, category, matchNum, futureMatches[-1].winner, matchList[-1].winner)
 
                 futureMatches.append(match)
                 matchNum = matchNum + 1
 
-        counter = counter+1
-        currentRows = math.floor(rows * math.pow(0.5, counter))
+        colCounter = colCounter+1
+        currentRows = math.floor(rows * math.pow(0.5, colCounter))
         matchList = futureMatches
+
+
+def updateMatch(tournament, category, matchNum, team1, team2):
+    match, created = Match.objects.get_or_create(
+        category=category, tournament=tournament, match_number=matchNum)
+    if match.team1 != team1 or match.team2 != team2:
+        match.team1 = team1
+        match.team2 = team2
+        match.save()
+
+    if created:
+        match.team1 = team1
+        match.team2 = team2
+        add_match_players(
+            team1, team2, match
+        )
+        match.save()
+
+    return match
 
 
 def on_match_won(winner, loser, score):
