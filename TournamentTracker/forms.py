@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import Form, ModelForm
+from django.db.models import Q
 
 from .models import Match, Player, School, Team, TempPlayer, Tournament
 
@@ -9,7 +9,7 @@ class DateInput(forms.DateInput):
     attrs = {'class': 'form-control'}
 
 
-class SchoolForm(ModelForm):
+class SchoolForm(forms.ModelForm):
     class Meta:
         model = School
         fields = '__all__'
@@ -22,7 +22,7 @@ class SchoolForm(ModelForm):
         super(SchoolForm, self).__init__(*args, **kwargs)
 
 
-class MultiSchoolForm(ModelForm):
+class MultiSchoolForm(forms.ModelForm):
     schools = forms.CharField(
         widget=forms.Textarea(attrs={'class': 'form-control'}),
         help_text='<i>Add every school on a new line</i>'
@@ -40,7 +40,7 @@ class MultiSchoolForm(ModelForm):
         super(MultiSchoolForm, self).__init__(*args, **kwargs)
 
 
-class TournamentForm(ModelForm):
+class TournamentForm(forms.ModelForm):
     class Meta:
         model = Tournament
         fields = ('name', 'sport', 'start_date', 'end_date', 'cutoff_month',
@@ -62,7 +62,7 @@ class TournamentForm(ModelForm):
         super(TournamentForm, self).__init__(*args, **kwargs)
 
 
-class TeamForm(ModelForm):
+class TeamForm(forms.ModelForm):
     class Meta:
         model = Team
         fields = '__all__'
@@ -81,7 +81,7 @@ class TeamForm(ModelForm):
         super(TeamForm, self).__init__(*args, **kwargs)
 
 
-class TempPlayerForm(ModelForm):
+class TempPlayerForm(forms.ModelForm):
     class Meta:
         model = TempPlayer
         fields = '__all__'
@@ -102,7 +102,7 @@ class TempPlayerForm(ModelForm):
         self.fields['team_num'].initial = 1
 
 
-class PlayerForm(ModelForm):
+class PlayerForm(forms.ModelForm):
     class Meta:
         model = Player
         fields = '__all__'
@@ -112,7 +112,7 @@ class PlayerForm(ModelForm):
         }
 
 
-class MultiPlayerForm(ModelForm):
+class MultiPlayerForm(forms.ModelForm):
     players = forms.CharField(
         widget=forms.Textarea(attrs={
             'class': 'form-control',
@@ -133,7 +133,7 @@ class MultiPlayerForm(ModelForm):
         super(MultiPlayerForm, self).__init__(*args, **kwargs)
 
 
-class MatchForm(ModelForm):
+class MatchForm(forms.ModelForm):
     class Meta:
         model = Match
         fields = ('category', 'team1', 'team2')
@@ -147,13 +147,13 @@ class MatchForm(ModelForm):
         super(MatchForm, self).__init__(*args, **kwargs)
 
 
-class WinnerForm(ModelForm):
+class WinnerForm(forms.ModelForm):
     class Meta:
         model = Match
-        fields = ('winner', 'score')
+        fields = ('winner',)
         widgets = {
             'winner': forms.Select(attrs={'class': 'form-select'}),
-            'score': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '<Team1 Score> - <Team2 Score>'}),
+            # 'score': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '<Team1 Score> - <Team2 Score>'}),
         }
         help_texts = {
             'score': 'Note: The order of score must correspond to the team number. <br /><i>Use the placeholder as an example</i>'
@@ -161,9 +161,54 @@ class WinnerForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(WinnerForm, self).__init__(*args, **kwargs)
+        match = kwargs['instance']
+        teams = Team.objects.filter(Q(id=match.team1.id) | Q(
+            id=match.team2 and match.team2.id))
+        self.fields["winner"].queryset = teams
+
+        if match.score is not None:
+            scores = match.score.split("/")[1:-1]
+
+        for i in range(match.tournament.sets):
+            setScore = "0-0"
+            if scores and i < len(scores):
+                setScore = scores[i]
+
+            self.fields[f"set {i+1} score"] = forms.CharField(
+                widget=forms.TextInput(attrs={'class': 'form-control'}), initial=setScore)
+
+    def save(self, *args, **kwargs):
+        score = ""
+        team1Wins = 0
+        team2Wins = 0
+
+        i = 1
+        while True:
+            setScore: str = self[f'set {i} score'].data
+
+            if setScore == "0-0":
+                print("Empty Set!")
+                break
+
+            team1Score = int(setScore[:setScore.index("-")])
+            team2Score = int(setScore[setScore.index("-")+1:])
+
+            if team1Score > team2Score:
+                team1Wins += 1
+            else:
+                team2Wins += 1
+
+            score += setScore+"/"
+
+            i += 1
+
+        score = f"{team1Wins}-{team2Wins}/" + score
+
+        self.score = score
+        return super().save(*args, **kwargs)
 
 
-class PlayerExcelForm(Form):
+class PlayerExcelForm(forms.Form):
     player_list = forms.FileField(widget=forms.FileInput(attrs={
         'class': 'form-control',
     }))
@@ -173,7 +218,7 @@ class PlayerExcelForm(Form):
         self.fields['player_list'].label = "Upload the Player List Here:"
 
 
-class MatchExcelForm(Form):
+class MatchExcelForm(forms.Form):
     match_list = forms.FileField(widget=forms.FileInput(attrs={
         'class': 'form-control',
     }))

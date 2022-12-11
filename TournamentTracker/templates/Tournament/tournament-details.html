@@ -9,10 +9,10 @@
     <div class="card-header bg-transparent">
       <!-- prettier-ignore -->
       <h1 class="display-">Tournament Details: <br /> {{object.name}}</h1>
-      {% if object.status == 'Not Started' %}
       <hr />
       <div class="align-items-center mx-4">
         <div class="btn-group" role="group" aria-label="Basic outlined example">
+          {% if object.status == 'Not Started' %}
           <a
             href="{% url 'add_player' object.id %}"
             type="button"
@@ -20,6 +20,8 @@
           >
             Add Player
           </a>
+          {% endif %}
+
           <a
             href="{% url 'details_team' object.id %}"
             type="button"
@@ -37,7 +39,6 @@
         </div>
       </div>
       <br />
-      {% endif %}
     </div>
     <div class="card-body">
       <div class="row align-items-center">

@@ -109,7 +109,9 @@ class Tournament(models.Model):
     status = models.CharField(
         max_length=16, choices=STATUS, default='Not Started', null=True, blank=True)
     points_per_win = models.PositiveSmallIntegerField(
-        default=1, null=True, blank=True)
+        default=1, null=False, blank=False)
+    sets = models.PositiveSmallIntegerField(
+        default=3, null=False, blank=False)
     image = models.ImageField(null=True, blank=True, default="")
     cutoff_month = models.CharField(
         max_length=10, choices=months, default="September", null=False, blank=False)

@@ -126,7 +126,7 @@ def updateMatch(tournament, category, matchNum, team1, team2):
     return match
 
 
-def on_match_won(winner, loser, score):
+def on_match_won(winner, loser):
     tournament = Tournament.objects.get(id=winner.tournament.id)
     winner.wins = winner.wins + 1
     winner.save()
@@ -146,7 +146,7 @@ def on_match_won(winner, loser, score):
         tournament=tournament, category=winner.category))
 
 
-def on_match_edited(winner, loser, score):
+def on_match_edited(winner, loser):
     tournament = Tournament.objects.get(id=winner.tournament.id)
     # adding and subtracting 2 to make up for the error victory and loss
     loser.wins = max(loser.wins - 1, 0)

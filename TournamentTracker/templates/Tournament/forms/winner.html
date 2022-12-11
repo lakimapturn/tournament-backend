@@ -1,0 +1,33 @@
+{% extends "Tournament/layout.html" %} {% block body %}
+
+<div class="container-sm mb-4" style="margin-top: 2rem; width: 60%">
+  <div>
+    <a href="{{request.META.HTTP_REFERER}}">Go back</a>
+  </div>
+
+  <div
+    class="card text-white bg-dark text-center"
+    style="background-color: #24305e !important"
+  >
+    <div class="card-header">
+      <h1 class="display-6">{{title}} Form</h1>
+    </div>
+    <div class="card-body">
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %} {{form.as_p}}
+        <input class="btn btn-primary" type="submit" value="Submit" />
+      </form>
+    </div>
+    <br />
+
+    {% if cancel_url %}
+    <a href="{% url cancel_url %}" type="button" class="btn btn-danger"
+      >Cancel</a
+    >
+    {% else %}
+    <a href="{% url 'index' %}" type="button" class="btn btn-danger">Cancel</a>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

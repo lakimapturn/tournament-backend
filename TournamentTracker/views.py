@@ -4,6 +4,8 @@ from django.urls import reverse, reverse_lazy
 from django.contrib.auth import authenticate, logout, login
 from django.views import generic
 from django.db.models import Q
+from django import forms
+
 import pandas as pd
 
 from rest_framework.views import APIView
@@ -324,25 +326,12 @@ class EditMatchWinner(generic.UpdateView):
         'title': 'Edit Match Winner',
     }
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.kwargs:
-            match = Match.objects.get(id=self.kwargs["pk"])
-            teams = Team.objects.filter(Q(id=match.team1.id) | Q(
-                id=match.team2 and match.team2.id))
-            context["form"].fields["winner"].queryset = teams
-
-        return context
-
     def form_valid(self, form):
         winner = form.cleaned_data['winner']
         match = Match.objects.get(id=self.kwargs["pk"])
-        if (match.team1.id == winner.id):
-            loser = match.team2
-        else:
-            loser = match.team1
-        score = form.cleaned_data['score']
-        on_match_edited(winner, loser, score)
+        loser = match.team1.id == winner.id and match.team2 or match.team1
+
+        on_match_edited(winner, loser)
 
         return super().form_valid(form)
 
@@ -360,23 +349,16 @@ class DeclareMatchWinner(generic.UpdateView):
         context = super().get_context_data(**kwargs)
         if self.kwargs:
             match = Match.objects.get(id=self.kwargs["pk"])
-            teams = Team.objects.filter(Q(id=match.team1.id) | Q(
-                id=match.team2 and match.team2.id))
-            context["form"].fields["winner"].queryset = teams
-
             self.success_url = reverse("details_match", kwargs={
-                                       'tournament_id': teams[0].tournament.id})
+                                       'tournament_id': match.tournament.id})
         return context
 
     def form_valid(self, form):
         winner = form.cleaned_data['winner']
         match = Match.objects.get(id=self.kwargs["pk"])
-        if (match.team1.id == winner.id):
-            loser = match.team2
-        else:
-            loser = match.team1
-        score = form.cleaned_data['score']
-        on_match_won(winner, loser, score)
+        loser = match.team1.id == winner.id and match.team2 or match.team1
+
+        on_match_won(winner, loser)
 
         return super().form_valid(form)
 
@@ -391,7 +373,6 @@ class MatchDetails(generic.ListView):
     }
 
     def get_queryset(self):
-        print(self.kwargs)
         if self.kwargs != {}:
             tournament = self.kwargs['tournament_id']
             createMatchFixtures(self.request, tournament)
