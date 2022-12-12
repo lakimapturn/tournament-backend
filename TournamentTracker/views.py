@@ -326,6 +326,14 @@ class EditMatchWinner(generic.UpdateView):
         'title': 'Edit Match Winner',
     }
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.kwargs:
+            match = Match.objects.get(id=self.kwargs["pk"])
+            self.success_url = reverse("details_match", kwargs={
+                                       'tournament_id': match.tournament.id})
+        return context
+
     def form_valid(self, form):
         winner = form.cleaned_data['winner']
         match = Match.objects.get(id=self.kwargs["pk"])

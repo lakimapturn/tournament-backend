@@ -143,9 +143,6 @@ class MatchForm(forms.ModelForm):
             'team2': forms.Select(attrs={'class': 'form-select'}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super(MatchForm, self).__init__(*args, **kwargs)
-
 
 class WinnerForm(forms.ModelForm):
     class Meta:
@@ -177,13 +174,21 @@ class WinnerForm(forms.ModelForm):
             self.fields[f"set {i+1} score"] = forms.CharField(
                 widget=forms.TextInput(attrs={'class': 'form-control'}), initial=setScore)
 
-    def save(self, *args, **kwargs):
+    def save(self, commit=True, *args, **kwargs):
+        instance = super(WinnerForm, self).save(commit=False)
+
         score = ""
         team1Wins = 0
         team2Wins = 0
 
+        print()
+
         i = 1
         while True:
+            if f'set {i} score' not in self.fields:
+                print("why")
+                break
+
             setScore: str = self[f'set {i} score'].data
 
             if setScore == "0-0":
@@ -204,8 +209,10 @@ class WinnerForm(forms.ModelForm):
 
         score = f"{team1Wins}-{team2Wins}/" + score
 
-        self.score = score
-        return super().save(*args, **kwargs)
+        instance.score = score
+        instance.save()
+
+        return instance
 
 
 class PlayerExcelForm(forms.Form):
