@@ -70,12 +70,12 @@ class TeamSerializer(serializers.ModelSerializer):
 
 class TeamPlayersSerializer(serializers.ModelSerializer):
     players = PlayerSerializer(many=True)
-    # school = SchoolSerializer()
+    school = SchoolSerializer()
 
     class Meta:
         model = Team
         fields = (
-            'id', 'players'
+            'id', 'players', 'school'
         )
 
         depth = 1
@@ -97,5 +97,4 @@ class MatchSerializer(serializers.ModelSerializer):
 
     def get_score(self, obj):
         score = obj.score.split("/")[:-1]
-        print(obj.score)
         return score
