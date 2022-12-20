@@ -126,36 +126,25 @@ def updateMatch(tournament, category, matchNum, team1, team2):
     return match
 
 
-def on_match_won(winner, loser):
-    tournament = Tournament.objects.get(id=winner.tournament.id)
-    winner.wins = winner.wins + 1
-    winner.save()
-
+def on_match_changed(winner, loser, edited):
+    tournament = winner.tournament
+    pointsPerWin = tournament.points_per_win
     winnerSchool = tournament.schools.get(school=winner.school.id)
-    winnerSchool.points = winnerSchool.points + tournament.points_per_win
-    # winnerSchool.wins = winnerSchool.wins + 1
-    winnerSchool.save()
+    loserSchool = tournament.schools.get(school=loser.school.id)
 
-    loser.losses = loser.losses + 1
-    loser.save()
-
-    # loserSchool = School.objects.get(id = loser.school.id)
-    # loserSchool.losses = loserSchool.losses + 1
-    # loserSchool.save()
-    createTournamentFixture(Team.objects.filter(
-        tournament=tournament, category=winner.category))
-
-
-def on_match_edited(winner, loser):
-    tournament = Tournament.objects.get(id=winner.tournament.id)
-    # adding and subtracting 2 to make up for the error victory and loss
-    loser.wins = max(loser.wins - 1, 0)
+    # adding and subtracting to make up for the error victory and loss
     loser.losses = loser.losses + 1
     loser.save()
 
     winner.wins = winner.wins + 1
-    winner.losses = max(loser.wins - 1, 0)
+    winnerSchool.points += pointsPerWin
     winner.save()
+
+    if (edited):
+        loser.wins = max(loser.wins - 1, 0)
+        winner.losses = max(loser.wins - 1, 0)
+        winnerSchool.points += pointsPerWin
+        loserSchool.points = max(loserSchool.points - pointsPerWin*2, 0)
 
     createTournamentFixture(Team.objects.filter(
         tournament=tournament, category=winner.category))

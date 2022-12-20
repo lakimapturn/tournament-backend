@@ -1,6 +1,8 @@
 from django import forms
 from django.db.models import Q
 
+import re
+
 from .models import Match, Player, School, Team, TempPlayer, Tournament
 
 
@@ -129,9 +131,6 @@ class MultiPlayerForm(forms.ModelForm):
             'category': forms.Select(attrs={'class': 'form-select'}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super(MultiPlayerForm, self).__init__(*args, **kwargs)
-
 
 class MatchForm(forms.ModelForm):
     class Meta:
@@ -142,6 +141,15 @@ class MatchForm(forms.ModelForm):
             'team1': forms.Select(attrs={'class': 'form-select'}),
             'team2': forms.Select(attrs={'class': 'form-select'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(MatchForm, self).__init__(*args, **kwargs)
+        match = kwargs['instance']
+
+        self.fields["category"].queryset = match.tournament.categories
+
+        self.fields["team1"].queryset = self.fields["team2"].queryset = Team.objects.filter(
+            tournament=match.tournament, category=match.category)
 
 
 class WinnerForm(forms.ModelForm):
@@ -181,18 +189,20 @@ class WinnerForm(forms.ModelForm):
         team1Wins = 0
         team2Wins = 0
 
-        print()
-
         i = 1
         while True:
             if f'set {i} score' not in self.fields:
-                print("why")
                 break
 
             setScore: str = self[f'set {i} score'].data
 
-            if setScore == "0-0":
-                print("Empty Set!")
+            if setScore == "0-0" or setScore == "":
+                """
+                To check for format of inputted set score using regex: 
+                Code has to go in validate function
+                """
+                # x = re.findall("[0-9]-[0-9]", setScore)
+                # if x and len(x) == 1:
                 break
 
             team1Score = int(setScore[:setScore.index("-")])

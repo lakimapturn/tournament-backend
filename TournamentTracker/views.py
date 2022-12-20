@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .forms import MatchExcelForm, PlayerExcelForm, MatchForm, MultiPlayerForm, MultiSchoolForm, PlayerForm, SchoolForm, TeamForm, TournamentForm, WinnerForm
 from .models import Category, EventType, Match, Player, School, SchoolPoints, Team, Tournament
 from .serializers import MatchSerializer, SchoolSerializer, TeamSerializer, TournamentDetailsSerializer, TournamentSerializer
-from .utils import create_teams, get_tournament_winner, on_match_edited, on_match_won, createTournamentFixture, saveMultiPlayerFormDetails, savePlayerDetails
+from .utils import create_teams, get_tournament_winner, on_match_changed, createTournamentFixture, saveMultiPlayerFormDetails, savePlayerDetails
 
 # Create your views here.
 
@@ -143,10 +143,7 @@ class TournamentEdit(generic.UpdateView):
 
         tournament = Tournament.objects.get(id=self.kwargs["pk"])
         form = context["form"]
-        # form.fields['categories'].queryset = tournament.categories
         form.fields['event_types'].queryset = tournament.event_types
-        # form.fields['winner'].queryset = tournament.schools
-        # ask sir if he would prefer having all options open when editing or narrowing the options down
 
         return context
 
@@ -163,7 +160,9 @@ class TournamentCreate(generic.CreateView):
         if form.is_valid():
             tournament = form.save()
             tournament.save()
-        return HttpResponseRedirect(reverse_lazy("add_school", kwargs={'tournament_id': tournament.id}))
+            return HttpResponseRedirect(reverse_lazy("add_school", kwargs={'tournament_id': tournament.id}))
+
+        return render(request, self.template_name, {'form': self.form_class(initial=self.initial)})
 
 
 class TournamentList(generic.ListView):
@@ -177,7 +176,6 @@ class TournamentList(generic.ListView):
     }
 
     def get_queryset(self):
-        print(self.kwargs)
         if self.kwargs != {}:
             return Tournament.objects.filter(id=self.kwargs['tournament_id'])
         return Tournament.objects.all()
@@ -226,7 +224,9 @@ class MultiSchoolCreate(generic.CreateView):
                 tournament.schools.add(schoolPoints)
             tournament.save()
         # reverse_lazy("add_player", kwargs = {'tournament_id': tournament.id})
-        return HttpResponseRedirect(reverse_lazy("details_tournament", kwargs={'pk': tournament.id}))
+            return HttpResponseRedirect(reverse_lazy("details_tournament", kwargs={'pk': tournament.id}))
+
+        return render(request, self.template_name, {'form': self.form_class(request.POST)})
 
 
 class SchoolDetails(generic.ListView):
@@ -286,7 +286,6 @@ class TeamDetails(generic.ListView):
         return context
 
     def get_queryset(self):
-        print(self.kwargs)
         if self.kwargs != {}:
             return Team.objects.filter(tournament=self.kwargs['tournament_id'])
         return Team.objects.all()
@@ -298,23 +297,6 @@ class MatchEdit(generic.UpdateView):
     template_name = 'Tournament/form.html'
     success_url = reverse_lazy("details_tournament")
     extra_context = {'title': 'Edit Match'}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        form = context["form"]
-        if self.kwargs:
-            match = Match.objects.get(id=self.kwargs["pk"])
-            # function to filter teams that have either of the match team ids
-            teams = Team.objects.filter(Q(id=match.team1.id) | Q(
-                id=match.team2 and match.team2.id))
-            form.fields["category"].queryset = Tournament.objects.get(
-                id=match.tournament.id).categories
-            if match.winner:
-                form.fields["winner"].initial = match.winner
-            else:
-                form.fields["winner"].queryset = teams
-
-        return context
 
 
 class EditMatchWinner(generic.UpdateView):
@@ -339,7 +321,7 @@ class EditMatchWinner(generic.UpdateView):
         match = Match.objects.get(id=self.kwargs["pk"])
         loser = match.team1.id == winner.id and match.team2 or match.team1
 
-        on_match_edited(winner, loser)
+        on_match_changed(winner, loser, edited=True)
 
         return super().form_valid(form)
 
@@ -366,7 +348,7 @@ class DeclareMatchWinner(generic.UpdateView):
         match = Match.objects.get(id=self.kwargs["pk"])
         loser = match.team1.id == winner.id and match.team2 or match.team1
 
-        on_match_won(winner, loser)
+        on_match_changed(winner, loser, edited=False)
 
         return super().form_valid(form)
 
