@@ -8,7 +8,6 @@ from .models import Match, Player, School, Team, TempPlayer, Tournament
 
 class DateInput(forms.DateInput):
     input_type = 'date'
-    attrs = {'class': 'form-control'}
 
 
 class SchoolForm(forms.ModelForm):

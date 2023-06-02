@@ -143,8 +143,7 @@ def on_match_changed(winner, loser, edited):
     if (edited):
         loser.wins = max(loser.wins - 1, 0)
         winner.losses = max(loser.wins - 1, 0)
-        winnerSchool.points += pointsPerWin
-        loserSchool.points = max(loserSchool.points - pointsPerWin*2, 0)
+        loserSchool.points = max(loserSchool.points - pointsPerWin, 0)
 
     createTournamentFixture(Team.objects.filter(
         tournament=tournament, category=winner.category))
