@@ -83,9 +83,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Tournament.wsgi.application'
 
-# vercel_app/wsgi.py
-app = get_wsgi_application()
-
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -141,6 +138,8 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 
+# vercel_app/wsgi.py
+app = get_wsgi_application()
 
 # Media files
 
