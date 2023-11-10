@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
+from django.core.wsgi import get_wsgi_application
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ SECRET_KEY = 'k#hq62o=-yqsyzm+_z9vh53ice!jf@n(^x-0*rlpn!68tq=m$*'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'gma-tournament-admin.herokuapp.com', '*']
+ALLOWED_HOSTS = ['localhost', 'gma-tournament-admin.herokuapp.com', '.vercel.app']
 
 CORS_ORIGIN_ALLOW_ALL = True  # change to false when app is deployed
 
@@ -81,6 +82,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Tournament.wsgi.application'
+
+# vercel_app/wsgi.py
+app = get_wsgi_application()
 
 
 # Database
